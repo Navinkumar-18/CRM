@@ -13,13 +13,15 @@ import {
   Building2,
   Briefcase,
   UserCircle,
-  Settings
+  Settings,
+  Users
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useState, useRef, useEffect } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Companies', href: '/companies', icon: Building2 },
   { name: 'Contacts', href: '/contacts', icon: UserCircle },
   { name: 'Leads', href: '/leads', icon: Target },
@@ -32,7 +34,7 @@ const navigation = [
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const { user, logout } = useAuthStore();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -46,11 +48,23 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen bg-[#faf8ff] flex">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[1px] md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <aside 
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-[#E2E8F0] transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:flex md:flex-col",
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-white border-r border-[#E2E8F0] shadow-xl transform transition-transform duration-200 ease-in-out md:static md:shadow-none md:translate-x-0",
           !sidebarOpen && "-translate-x-full"
         )}
       >
@@ -85,15 +99,15 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 shadow-sm/50">
-          <div className="flex items-center">
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] sticky top-0 z-40 flex items-center justify-between gap-3 px-4 sm:px-6 shadow-sm/50">
+          <div className="flex min-w-0 items-center">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="md:hidden p-2 rounded-md text-slate-500 hover:bg-slate-100"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="hidden sm:flex items-center ml-4">
+            <div className="ml-2 hidden sm:flex items-center md:ml-4">
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -101,13 +115,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <input 
                   type="text" 
                   placeholder="Search..." 
-                  className="bg-slate-50 border border-slate-200 pl-9 pr-4 py-1.5 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 w-64 transition-all"
+                  className="w-48 bg-slate-50 border border-slate-200 pl-9 pr-4 py-1.5 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 transition-all lg:w-64"
                 />
               </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex shrink-0 items-center space-x-1 sm:space-x-2">
             <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -151,7 +165,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
 
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </div>
       </main>

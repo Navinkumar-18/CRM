@@ -97,7 +97,7 @@ export const Tasks = () => {
           <h1 className="text-2xl font-bold text-[#191b23]">Task Management</h1>
           <p className="text-[#565e74]">Organize and track your daily tasks and follow-ups.</p>
         </div>
-        <button onClick={openCreate} className="btn-primary flex items-center shrink-0">
+        <button onClick={openCreate} className="btn-primary flex w-full items-center justify-center shrink-0 sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           Create Task
         </button>
@@ -233,11 +233,11 @@ export const Tasks = () => {
         </div>
 
         {data && data.total > 15 && (
-          <div className="p-4 border-t border-slate-200 flex items-center justify-between bg-slate-50/50">
+          <div className="p-4 border-t border-slate-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-slate-50/50">
             <span className="text-sm text-slate-500">
               Showing <span className="font-medium text-slate-700">{(page - 1) * 15 + 1}</span> to <span className="font-medium text-slate-700">{Math.min(page * 15, data.total)}</span> of <span className="font-medium text-slate-700">{data.total}</span> results
             </span>
-            <div className="flex space-x-2">
+            <div className="flex gap-2 self-end sm:self-auto">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
@@ -264,7 +264,7 @@ export const Tasks = () => {
             <label className="block text-sm font-medium text-[#191b23] mb-1">Description</label>
             <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="input-field h-20 resize-none" placeholder="Task description..." />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Priority</label>
               <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value as any })} className="input-field">
@@ -282,11 +282,11 @@ export const Tasks = () => {
             <label className="block text-sm font-medium text-[#191b23] mb-1">Due Date</label>
             <input type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} className="input-field" />
           </div>
-          <div className="flex justify-between items-center pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             {editing && (
-              <button onClick={() => { setDeleteTarget(editing); setModalOpen(false); }} className="text-sm text-red-600 hover:text-red-700 font-medium">Delete task</button>
+              <button onClick={() => { setDeleteTarget(editing); setModalOpen(false); }} className="text-left text-sm text-red-600 hover:text-red-700 font-medium">Delete task</button>
             )}
-            <div className="flex space-x-3 ml-auto">
+            <div className="flex flex-col-reverse gap-3 sm:ml-auto sm:flex-row">
               <button onClick={() => setModalOpen(false)} className="btn-secondary text-sm">Cancel</button>
               <button onClick={handleSave} disabled={saving} className="btn-primary text-sm">{saving ? 'Saving...' : editing ? 'Update Task' : 'Create Task'}</button>
             </div>

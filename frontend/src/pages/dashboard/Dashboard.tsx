@@ -6,29 +6,52 @@ import {
   Target, 
   CheckSquare, 
   Activity,
-  TrendingUp,
-  ArrowRight
+  ArrowRight,
+  DollarSign,
+  UserCircle,
+  Building2,
+  Briefcase,
+  TrendingUp
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 const fetchMetrics = async () => {
   const response = await api.get('/dashboard/metrics');
-  return response.data;
+  return (response as any).data;
 };
 
 const fetchRecentActivities = async () => {
   const response = await api.get('/dashboard/recent');
-  return response.data;
+  return (response as any).data;
 };
 
-const statConfig = [
-  { name: 'Total Customers', icon: Users, gradient: 'from-blue-500 to-blue-600', bgLight: 'bg-blue-50', textLight: 'text-blue-600' },
-  { name: 'Active Leads', icon: Target, gradient: 'from-violet-500 to-violet-600', bgLight: 'bg-violet-50', textLight: 'text-violet-600' },
-  { name: 'Conversion Rate', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', bgLight: 'bg-emerald-50', textLight: 'text-emerald-600' },
-  { name: 'Tasks Pending', icon: CheckSquare, gradient: 'from-amber-500 to-amber-600', bgLight: 'bg-amber-50', textLight: 'text-amber-600' },
-];
+const fetchPipeline = async () => {
+  const response = await api.get('/dashboard/pipeline');
+  return (response as any).data;
+};
+
+const fetchFunnel = async () => {
+  const response = await api.get('/dashboard/funnel');
+  return (response as any).data;
+};
+
+const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ['metrics'],
     queryFn: fetchMetrics,
@@ -39,22 +62,38 @@ export const Dashboard = () => {
     queryFn: fetchRecentActivities,
   });
 
+  const { data: pipeline, isLoading: pipelineLoading } = useQuery({
+    queryKey: ['pipeline'],
+    queryFn: fetchPipeline,
+  });
+
+  const { data: funnel, isLoading: funnelLoading } = useQuery({
+    queryKey: ['funnel'],
+    queryFn: fetchFunnel,
+  });
+
   if (metricsLoading) {
     return (
       <div className="space-y-6 max-w-[1440px] mx-auto animate-pulse">
         <div className="h-8 w-48 bg-slate-200 rounded-lg" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-slate-100 rounded-xl" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[1,2,3,4,5].map(i => <div key={i} className="h-32 bg-slate-100 rounded-xl" />)}
         </div>
       </div>
     );
   }
 
   const statCards = [
-    { ...statConfig[0], value: metrics?.totalCustomers || 0 },
-    { ...statConfig[1], value: metrics?.totalLeads || 0 },
-    { ...statConfig[2], value: `${metrics?.conversionRate || 0}%` },
-    { ...statConfig[3], value: metrics?.totalTasks || 0 },
+    { name: 'Total Customers', value: metrics?.customers || 0, icon: Users, gradient: 'from-blue-500 to-blue-600' },
+    { name: 'Companies', value: metrics?.companies || 0, icon: Building2, gradient: 'from-slate-500 to-slate-600' },
+    { name: 'Active Leads', value: metrics?.leads || 0, icon: Target, gradient: 'from-violet-500 to-violet-600' },
+    { name: 'Revenue Won', value: `$${(metrics?.revenueClosedWon || 0).toLocaleString()}`, icon: DollarSign, gradient: 'from-emerald-500 to-emerald-600' },
+    { name: 'Tasks Due', value: metrics?.tasksDue || 0, icon: CheckSquare, gradient: 'from-amber-500 to-amber-600' },
+  ];
+
+  const secondaryStats = [
+    { name: 'Contacts', value: metrics?.contacts || 0, icon: UserCircle },
+    { name: 'Open Deals', value: metrics?.openDeals || 0, icon: Briefcase },
   ];
 
   const getTimeGreeting = () => {
@@ -71,7 +110,8 @@ export const Dashboard = () => {
         <p className="text-slate-500">Here's what's happening across your workspace.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Primary Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {statCards.map((stat) => (
           <div key={stat.name} className="bg-white rounded-xl border border-slate-200/70 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
             <div className="flex items-center justify-between">
@@ -87,6 +127,88 @@ export const Dashboard = () => {
         ))}
       </div>
 
+      {/* Secondary Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        {secondaryStats.map((stat) => (
+          <div key={stat.name} className="bg-white rounded-xl border border-slate-200/70 px-4 py-3 shadow-sm flex items-center gap-3">
+            <stat.icon className="w-5 h-5 text-slate-400" />
+            <div>
+              <p className="text-xs font-medium text-slate-500">{stat.name}</p>
+              <p className="text-lg font-bold text-slate-800">{stat.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Analytics Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-slate-200/70 p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-5">
+            <TrendingUp className="w-5 h-5 text-blue-600" />
+            <h2 className="text-lg font-bold text-slate-900">Lead Funnel Analysis</h2>
+          </div>
+          {funnelLoading ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={funnel || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="status" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} style={{ textTransform: 'capitalize' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} allowDecimals={false} />
+                  <RechartsTooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Leads" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200/70 p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-5">
+            <Briefcase className="w-5 h-5 text-violet-600" />
+            <h2 className="text-lg font-bold text-slate-900">Pipeline Revenue by Stage</h2>
+          </div>
+          {pipelineLoading ? (
+            <div className="h-[300px] flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pipeline || []}
+                    dataKey="total"
+                    nameKey="stage"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={2}
+                  >
+                    {(pipeline || []).map((_: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip 
+                    formatter={(value: any) => [`$${Number(value || 0).toLocaleString()}`, 'Revenue']}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', textTransform: 'capitalize' }}
+                  />
+                  <Legend iconType="circle" formatter={(value) => <span style={{ textTransform: 'capitalize', color: '#475569', fontSize: '13px' }}>{value}</span>} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Activities + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200/70 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
@@ -114,7 +236,7 @@ export const Dashboard = () => {
                 <p className="text-slate-500 text-sm">No recent activities yet.</p>
               </div>
             ) : (
-              activities?.map((activity: any) => (
+              activities?.slice(0, 8).map((activity: any) => (
                 <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 group">
                   <div className="mt-0.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center border border-blue-100">
@@ -142,7 +264,9 @@ export const Dashboard = () => {
             {[
               { label: 'Add New Customer', icon: Users, path: '/customers', color: 'text-blue-600', bg: 'bg-blue-50' },
               { label: 'Create Lead', icon: Target, path: '/leads', color: 'text-violet-600', bg: 'bg-violet-50' },
+              { label: 'New Deal', icon: Briefcase, path: '/deals', color: 'text-emerald-600', bg: 'bg-emerald-50' },
               { label: 'Assign Task', icon: CheckSquare, path: '/tasks', color: 'text-amber-600', bg: 'bg-amber-50' },
+              { label: 'Add Company', icon: Building2, path: '/companies', color: 'text-slate-600', bg: 'bg-slate-50' },
             ].map(item => (
               <button
                 key={item.label}

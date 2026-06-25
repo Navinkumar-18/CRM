@@ -3,6 +3,8 @@ export const SECTORS = [
   { value: 'school', label: 'School', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   { value: 'hospital', label: 'Hospital', color: 'bg-red-100 text-red-700 border-red-200' },
   { value: 'ecommerce', label: 'E-Commerce', color: 'bg-green-100 text-green-700 border-green-200' },
+  { value: 'manufacturing', label: 'Manufacturing', color: 'bg-orange-100 text-orange-700 border-orange-200' },
+  { value: 'real_estate', label: 'Real Estate', color: 'bg-teal-100 text-teal-700 border-teal-200' },
 ] as const;
 
 export const CUSTOMER_STATUSES = [

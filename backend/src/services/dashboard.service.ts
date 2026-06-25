@@ -16,6 +16,7 @@ export const getDashboardSummary = async (user: AuthUser) => {
     tasksDueResult,
     contactsResult,
     companiesResult,
+    customersResult,
   ] = await Promise.all([
     // Total leads
     (() => {
@@ -57,6 +58,12 @@ export const getDashboardSummary = async (user: AuthUser) => {
     })(),
     // Total companies
     supabase.from('companies').select('id', { count: 'exact', head: true }),
+    // Total customers
+    (() => {
+      let q = supabase.from('customers').select('id', { count: 'exact', head: true });
+      if (scopeId) q = q.eq('assigned_to', scopeId);
+      return q;
+    })(),
   ]);
 
   const revenue = (dealsResult.data ?? []).reduce(
@@ -70,6 +77,7 @@ export const getDashboardSummary = async (user: AuthUser) => {
     tasks_due: tasksDueResult.count ?? 0,
     contacts: contactsResult.count ?? 0,
     companies: companiesResult.count ?? 0,
+    customers: customersResult.count ?? 0,
     revenue_closed_won: revenue,
   };
 };

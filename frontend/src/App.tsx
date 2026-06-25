@@ -5,6 +5,7 @@ import { Login } from './pages/auth/Login';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { Dashboard } from './pages/dashboard/Dashboard';
+import { Customers } from './pages/customers/Customers';
 import { Leads } from './pages/leads/Leads';
 import { Tasks } from './pages/tasks/Tasks';
 import { Activities } from './pages/activities/Activities';
@@ -34,6 +35,7 @@ function App() {
           
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+            <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
             <Route path="/companies" element={<AppLayout><Companies /></AppLayout>} />
             <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
             <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />

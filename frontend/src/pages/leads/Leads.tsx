@@ -72,17 +72,17 @@ export const Leads = () => {
   };
 
   return (
-    <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col">
+    <div className="flex min-h-[calc(100vh-120px)] flex-col space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-[#191b23]">Lead Pipeline</h1>
           <p className="text-[#565e74]">Track and manage prospective customers through the sales funnel.</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3 sm:gap-0">
           <div className="relative">
             <button
               onClick={() => setShowStatusFilter(!showStatusFilter)}
-              className={cn("btn-secondary flex items-center text-sm", statusFilter && "border-[#2563eb] text-[#2563eb]")}
+              className={cn("btn-secondary flex w-full items-center justify-center text-sm sm:w-auto", statusFilter && "border-[#2563eb] text-[#2563eb]")}
             >
               <Building className="w-4 h-4 mr-2" />
               {statusFilter ? SECTORS.find(s => s.value === statusFilter)?.label : 'Sector'}
@@ -98,14 +98,14 @@ export const Leads = () => {
               </div>
             )}
           </div>
-          <button onClick={openCreate} className="btn-primary flex items-center shrink-0">
+          <button onClick={openCreate} className="btn-primary flex w-full items-center justify-center shrink-0 sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Lead
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-x-auto pb-4">
+      <div className="flex-1 overflow-x-auto pb-2 sm:pb-4">
         <div className="flex h-full min-w-max space-x-4">
           {isLoading ? (
             <div className="flex space-x-4 w-full">
@@ -118,7 +118,7 @@ export const Leads = () => {
               const stageLeads = getLeadsByStatus(stage.value);
 
               return (
-                <div key={stage.value} className="w-80 flex flex-col bg-[#f8fafc]/50 border border-[#E2E8F0] rounded-xl shrink-0">
+                <div key={stage.value} className="w-[85vw] max-w-80 flex flex-col bg-[#f8fafc]/50 border border-[#E2E8F0] rounded-xl shrink-0 sm:w-80">
                   <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between shrink-0">
                     <div className="flex items-center space-x-2">
                       <h3 className="font-semibold text-[#191b23]">{stage.label}</h3>
@@ -193,7 +193,7 @@ export const Leads = () => {
             <label className="block text-sm font-medium text-[#191b23] mb-1">Name *</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="input-field" placeholder="Lead name" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Email</label>
               <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-field" placeholder="email@example.com" />
@@ -203,7 +203,7 @@ export const Leads = () => {
               <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+1 234 567 890" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Source</label>
               <select value={form.source} onChange={e => setForm({ ...form, source: e.target.value })} className="input-field">
@@ -222,7 +222,7 @@ export const Leads = () => {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Status</label>
               <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as any })} className="input-field">
@@ -234,11 +234,11 @@ export const Leads = () => {
             <label className="block text-sm font-medium text-[#191b23] mb-1">Notes</label>
             <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className="input-field h-20 resize-none" placeholder="Optional notes..." />
           </div>
-          <div className="flex justify-between items-center pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             {editing && (
-              <button onClick={() => { setDeleteTarget(editing); setModalOpen(false); }} className="text-sm text-red-600 hover:text-red-700 font-medium">Delete lead</button>
+              <button onClick={() => { setDeleteTarget(editing); setModalOpen(false); }} className="text-left text-sm text-red-600 hover:text-red-700 font-medium">Delete lead</button>
             )}
-            <div className="flex space-x-3 ml-auto">
+            <div className="flex flex-col-reverse gap-3 sm:ml-auto sm:flex-row">
               <button onClick={() => setModalOpen(false)} className="btn-secondary text-sm">Cancel</button>
               <button onClick={handleSave} disabled={saving} className="btn-primary text-sm">{saving ? 'Saving...' : editing ? 'Update Lead' : 'Create Lead'}</button>
             </div>

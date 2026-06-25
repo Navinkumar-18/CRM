@@ -71,7 +71,7 @@ export const Login = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex flex-col items-center mb-8">
             <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
@@ -81,7 +81,7 @@ export const Login = () => {
             <p className="text-slate-500 mt-1">Sign in to your workspace</p>
           </div>
 
-          <div className="glass-panel-elevated p-8">
+          <div className="glass-panel-elevated p-5 sm:p-8">
             <div className="hidden lg:flex flex-col items-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
                 <Activity className="w-6 h-6 text-white" />

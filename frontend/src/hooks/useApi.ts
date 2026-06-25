@@ -42,3 +42,7 @@ function useEntityApi<T>(baseKey: string, endpoint: string) {
 export const useCustomersApi = () => useEntityApi('customers', '/customers');
 export const useLeadsApi = () => useEntityApi('leads', '/leads');
 export const useTasksApi = () => useEntityApi('tasks', '/tasks');
+export const useCompaniesApi = () => useEntityApi('companies', '/companies');
+export const useContactsApi = () => useEntityApi('contacts', '/contacts');
+export const useDealsApi = () => useEntityApi('deals', '/deals');
+
