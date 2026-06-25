@@ -1,4 +1,4 @@
-# NexusCRM Backend
+# Zuna CRM Backend
 
 Express + TypeScript API with Supabase (PostgreSQL), custom JWT auth, role-based access control, and structured logging.
 

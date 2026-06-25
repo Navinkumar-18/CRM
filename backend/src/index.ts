@@ -159,7 +159,7 @@ app.use('/api/custom', customRoutes);
 // ─── Root Endpoint ───────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
   res.json({
-    name: 'NexusCRM API',
+    name: 'Zuna CRM API',
     version: process.env.npm_package_version || '0.0.1',
     status: 'running',
   });
@@ -177,7 +177,7 @@ const start = async () => {
   await verifyTransporter();
 
   const server = app.listen(PORT, () => {
-    logger.info({ port: PORT, env: env.nodeEnv }, 'NexusCRM backend started');
+    logger.info({ port: PORT, env: env.nodeEnv }, 'Zuna CRM backend started');
   });
 
   // ─── Graceful Shutdown ─────────────────────────────────────────────────────

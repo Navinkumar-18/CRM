@@ -60,7 +60,7 @@ export const Register = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/15 backdrop-blur-sm rounded-2xl mb-8 border border-white/20">
             <Activity className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">NexusCRM</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">Zuna CRM</h1>
           <p className="text-blue-100 text-lg mb-12 max-w-md mx-auto leading-relaxed">
             Manage customers, track leads, and streamline your workflow — all in one place.
           </p>
@@ -87,7 +87,7 @@ export const Register = () => {
             <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
               <Activity className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">NexusCRM</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Zuna CRM</h1>
             <p className="text-slate-500 mt-1">Create your workspace account</p>
           </div>
 
@@ -97,7 +97,7 @@ export const Register = () => {
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-xl font-bold text-slate-900">Create Account</h2>
-              <p className="text-slate-500 text-sm mt-1">Join your team on NexusCRM</p>
+              <p className="text-slate-500 text-sm mt-1">Join your team on Zuna CRM</p>
             </div>
 
             {error && (
@@ -194,7 +194,7 @@ export const Register = () => {
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-6">
-            NexusCRM v0.1 — Manage your relationships
+            Zuna CRM v0.1 — Manage your relationships
           </p>
         </div>
       </div>

@@ -1,5 +1,5 @@
 -- ================================================================
--- 005_mvp_schema.sql — NexusCRM Full MVP Schema
+-- 005_mvp_schema.sql — Zuna CRM Full MVP Schema
 -- Run this against your Supabase PostgreSQL instance
 -- ================================================================
 

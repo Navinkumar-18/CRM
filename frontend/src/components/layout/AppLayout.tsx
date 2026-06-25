@@ -70,7 +70,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="h-16 flex items-center px-6 bg-gradient-to-r from-blue-600 to-blue-700">
           <Activity className="w-6 h-6 text-white mr-2" />
-          <span className="text-xl font-bold text-white">NexusCRM</span>
+          <span className="text-xl font-bold text-white">Zuna CRM</span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">

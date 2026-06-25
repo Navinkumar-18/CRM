@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 // Always use the authenticated user as From — Gmail rejects mismatched senders
 const fromAddress = env.smtpUser
-  ? `NexusCRM <${env.smtpUser}>`
+  ? `Zuna CRM <${env.smtpUser}>`
   : env.smtpFrom;
 
 export const verifyTransporter = async (): Promise<boolean> => {
@@ -45,10 +45,10 @@ export const sendVerificationEmail = async (
   const link = `${env.frontendUrl}/verify-email/${token}`;
   await sendEmail(
     to,
-    'Verify your NexusCRM account',
+    'Verify your Zuna CRM account',
     `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Welcome to NexusCRM!</h2>
+        <h2 style="color: #2563eb;">Welcome to Zuna CRM!</h2>
         <p>Hi ${name},</p>
         <p>Please verify your email address by clicking the button below:</p>
         <a href="${link}" style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; margin: 16px 0;">Verify Email</a>
@@ -67,7 +67,7 @@ export const sendResetPasswordEmail = async (
   const link = `${env.frontendUrl}/reset-password/${token}`;
   await sendEmail(
     to,
-    'Reset your NexusCRM password',
+    'Reset your Zuna CRM password',
     `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Password Reset</h2>

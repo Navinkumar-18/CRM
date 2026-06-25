@@ -59,8 +59,8 @@ export const env = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET as string,
   jwtAccessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
   jwtRefreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
-  jwtIssuer: process.env.JWT_ISSUER || 'nexuscrm-api',
-  jwtAudience: process.env.JWT_AUDIENCE || 'nexuscrm-app',
+  jwtIssuer: process.env.JWT_ISSUER || 'zunacrm-api',
+  jwtAudience: process.env.JWT_AUDIENCE || 'zunacrm-app',
   frontendUrl: process.env.FRONTEND_URL as string,
   allowedOrigins: parseAllowedOrigins(),
   nodeEnv: process.env.NODE_ENV as string,
@@ -71,7 +71,7 @@ export const env = {
   smtpSecure: process.env.SMTP_SECURE === 'true',
   smtpUser: process.env.SMTP_USER,
   smtpPass: process.env.SMTP_PASS,
-  smtpFrom: process.env.SMTP_FROM || 'NexusCRM <noreply@nexuscrm.com>',
+  smtpFrom: process.env.SMTP_FROM || 'Zuna CRM <noreply@zunacrm.com>',
   // Rate limiting (configurable via env for different deployment tiers)
   authRateLimitMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '5', 10),
   authRateLimitWindowMs: parseInt(
