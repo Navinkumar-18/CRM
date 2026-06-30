@@ -53,8 +53,15 @@ export const resetPasswordSchema = z.object({
   password: passwordSchema,
 });
 
+export const updateProfileSchema = z.object({
+  name: z.string().min(1).max(50).trim().optional(),
+  email: z.string().email().max(254).transform((v) => v.trim().toLowerCase()).optional(),
+  password: passwordSchema.optional(),
+});
+
 // Inferred types for use in services / controllers
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

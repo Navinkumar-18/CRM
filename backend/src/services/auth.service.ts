@@ -404,3 +404,54 @@ export const resetPassword = async (token: string, password: string) => {
 
   logger.info({ userId: user.id }, 'Password reset completed — all sessions revoked');
 };
+
+export const updateMe = async (
+  userId: string,
+  updates: { name?: string; email?: string; password?: string }
+) => {
+  const updateData: Record<string, any> = {};
+
+  if (updates.name) {
+    updateData.name = updates.name;
+  }
+
+  if (updates.email) {
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', updates.email)
+      .neq('id', userId)
+      .maybeSingle();
+
+    if (existing) {
+      throw new ConflictError('A user with this email already exists');
+    }
+    updateData.email = updates.email;
+  }
+
+  if (updates.password) {
+    updateData.password_hash = await bcrypt.hash(updates.password, env.bcryptRounds);
+  }
+
+  if (Object.keys(updateData).length === 0) {
+    return getMe(userId);
+  }
+
+  const { data: user, error } = await supabase
+    .from('users')
+    .update(updateData)
+    .eq('id', userId)
+    .select('id, name, email')
+    .single();
+
+  if (error || !user) {
+    throw new AppError('Failed to update profile', 400);
+  }
+
+  const resolvedRole = user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee';
+  
+  return {
+    ...user,
+    role: resolvedRole,
+  };
+};

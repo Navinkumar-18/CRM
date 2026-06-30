@@ -145,13 +145,14 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                     <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
                     <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
                   </div>
-                  <button
+                  <Link
+                    to="/profile"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                   >
                     <User className="w-4 h-4 mr-3 text-slate-400" />
                     Profile
-                  </button>
+                  </Link>
                   <button
                     onClick={() => { logout(); setProfileOpen(false); }}
                     className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"

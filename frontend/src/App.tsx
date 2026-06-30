@@ -15,6 +15,7 @@ import { Deals } from './pages/deals/Deals';
 import { CustomModules } from './pages/custom/CustomModules';
 
 import { Register } from './pages/auth/Register';
+import { Profile } from './pages/auth/Profile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,7 @@ function App() {
             <Route path="/tasks" element={<AppLayout><Tasks /></AppLayout>} />
             <Route path="/activities" element={<AppLayout><Activities /></AppLayout>} />
             <Route path="/custom-modules" element={<AppLayout><CustomModules /></AppLayout>} />
+            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
           </Route>
           
           <Route path="*" element={<Navigate to="/" replace />} />

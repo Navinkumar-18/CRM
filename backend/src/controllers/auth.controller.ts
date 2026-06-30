@@ -10,6 +10,7 @@ import {
   verifyEmail,
   requestPasswordReset,
   resetPassword,
+  updateMe as updateUserService,
 } from '../services/auth.service';
 
 const REFRESH_COOKIE_OPTIONS = {
@@ -105,6 +106,20 @@ export const me = async (
 ): Promise<void> => {
   try {
     const user = await getMe(req.user!.id);
+    res.status(200).json({ success: true, data: toCamelCase(user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateMe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { name, email, password } = req.body;
+    const user = await updateUserService(req.user!.id, { name, email, password });
     res.status(200).json({ success: true, data: toCamelCase(user) });
   } catch (error) {
     next(error);

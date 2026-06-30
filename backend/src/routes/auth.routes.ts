@@ -5,6 +5,7 @@ import {
   refresh,
   logout,
   me,
+  updateMe,
   verifyEmailHandler,
   forgotPassword,
   resetPasswordHandler,
@@ -21,6 +22,7 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  updateProfileSchema,
 } from '../schemas/auth.schema';
 
 const router = Router();
@@ -45,6 +47,7 @@ router.post('/refresh', refresh);
 router.post('/logout', logout);
 
 router.get('/me', protect, me);
+router.put('/me', protect, validate(updateProfileSchema), updateMe);
 
 // Email verification — no auth or rate limit needed (token is the proof)
 router.post('/verify-email/:token', verifyEmailHandler);
