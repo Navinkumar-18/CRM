@@ -1,6 +1,5 @@
 import { leadRepository } from '../repositories/lead.repository';
 import { AuthUser } from '../types/database';
-import { resolveAssignedTo } from '../utils/access';
 import { logActivity } from './activity.service';
 import { CreateLeadInput, UpdateLeadInput } from '../schemas/lead.schema';
 
@@ -23,7 +22,7 @@ export const getLeads = async (
 };
 
 export const createLead = async (user: AuthUser, body: CreateLeadInput) => {
-  const data = await leadRepository.create({
+  const data = (await leadRepository.create({
     name: body.name,
     email: body.email || null,
     phone: body.phone || null,
@@ -33,7 +32,7 @@ export const createLead = async (user: AuthUser, body: CreateLeadInput) => {
     notes: body.notes || null,
     assigned_to: body.assignedTo || user.id,
     created_by: user.id,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
 
   void logActivity({
     type: 'lead_created',
@@ -51,7 +50,15 @@ export const updateLead = async (
   body: UpdateLeadInput,
 ) => {
   const updateData: Record<string, unknown> = {};
-  const fields = ['name', 'email', 'phone', 'source', 'status', 'sector', 'notes'] as const;
+  const fields = [
+    'name',
+    'email',
+    'phone',
+    'source',
+    'status',
+    'sector',
+    'notes',
+  ] as const;
 
   for (const field of fields) {
     if (body[field] !== undefined) {
@@ -64,7 +71,10 @@ export const updateLead = async (
     updateData['assigned_to'] = body.assignedTo;
   }
 
-  const data = await leadRepository.update(id, updateData, user) as Record<string, string>;
+  const data = (await leadRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'lead_updated',
@@ -79,4 +89,3 @@ export const updateLead = async (
 export const deleteLead = async (user: AuthUser, id: string) => {
   await leadRepository.remove(id, user);
 };
-

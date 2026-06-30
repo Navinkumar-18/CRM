@@ -59,7 +59,9 @@ export const protect = async (
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ success: false, message: 'Authentication required' });
+    res
+      .status(401)
+      .json({ success: false, message: 'Authentication required' });
     return;
   }
 
@@ -94,12 +96,14 @@ export const protect = async (
   if (!user) {
     const { data, error } = await supabase
       .from('users')
-      .select('id, email, name, role, is_verified')  // role is now read from DB
+      .select('id, email, name, role, is_verified') // role is now read from DB
       .eq('id', userId)
       .single();
 
     if (error || !data) {
-      res.status(401).json({ success: false, message: 'Authentication failed' });
+      res
+        .status(401)
+        .json({ success: false, message: 'Authentication failed' });
       return;
     }
 
@@ -110,7 +114,12 @@ export const protect = async (
       return;
     }
 
-    user = { id: data.id, email: data.email, name: data.name, role: data.role as string };
+    user = {
+      id: data.id,
+      email: data.email,
+      name: data.name,
+      role: data.role as string,
+    };
     setCachedUser(userId, user);
   }
 

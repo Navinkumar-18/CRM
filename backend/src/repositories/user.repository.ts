@@ -14,7 +14,7 @@ class UserRepository {
 
     const { data, count, error } = await supabase
       .from('users')
-      .select('id, name, email, created_at', { count: 'exact' })
+      .select('id, name, email, role, created_at', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(skip, skip + safeLimit - 1);
 
@@ -22,7 +22,7 @@ class UserRepository {
 
     const users = (data || []).map((u) => ({
       ...u,
-      role: (u as any).role || (u.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee'),
+      role: (u as any).role || 'employee',
     }));
 
     return {

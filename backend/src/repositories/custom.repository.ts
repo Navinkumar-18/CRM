@@ -52,7 +52,10 @@ export class CustomRepository {
   }
 
   async deleteModule(id: string) {
-    const { error } = await supabase.from('custom_modules').delete().eq('id', id);
+    const { error } = await supabase
+      .from('custom_modules')
+      .delete()
+      .eq('id', id);
     if (error) throw error;
   }
 
@@ -67,7 +70,10 @@ export class CustomRepository {
   }
 
   async removeField(fieldId: string) {
-    const { error } = await supabase.from('custom_fields').delete().eq('id', fieldId);
+    const { error } = await supabase
+      .from('custom_fields')
+      .delete()
+      .eq('id', fieldId);
     if (error) throw error;
   }
 
@@ -110,7 +116,10 @@ export class CustomRepository {
   }
 
   async deleteRecord(id: string) {
-    const { error } = await supabase.from('custom_records').delete().eq('id', id);
+    const { error } = await supabase
+      .from('custom_records')
+      .delete()
+      .eq('id', id);
     if (error) throw error;
   }
 }

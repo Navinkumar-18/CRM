@@ -8,8 +8,8 @@ import { env } from '../config/env';
  */
 export const authLimiter = rateLimit({
   windowMs: env.authRateLimitWindowMs, // 15 minutes (configurable)
-  max: env.authRateLimitMax,           // 5 attempts (configurable)
-  skipSuccessfulRequests: true,        // Only penalise failures
+  max: env.authRateLimitMax, // 5 attempts (configurable)
+  skipSuccessfulRequests: true, // Only penalise failures
   message: {
     success: false,
     message: 'Too many failed attempts, please try again after 15 minutes',
@@ -25,8 +25,8 @@ export const authLimiter = rateLimit({
  */
 export const authSlowDown = slowDown({
   windowMs: env.authRateLimitWindowMs,
-  delayAfter: 2,       // Start slowing after 2 failures
-  delayMs: () => 500,  // Add 500ms per request above the threshold
+  delayAfter: 2, // Start slowing after 2 failures
+  delayMs: () => 500, // Add 500ms per request above the threshold
   skipSuccessfulRequests: true,
 });
 
@@ -50,7 +50,7 @@ export const passwordResetLimiter = rateLimit({
  */
 export const apiLimiter = rateLimit({
   windowMs: env.apiRateLimitWindowMs, // 1 minute (configurable)
-  max: env.apiRateLimitMax,           // 200 requests (configurable)
+  max: env.apiRateLimitMax, // 200 requests (configurable)
   message: { success: false, message: 'Too many requests, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,

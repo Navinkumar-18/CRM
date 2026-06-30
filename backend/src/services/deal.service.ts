@@ -1,7 +1,11 @@
 import { dealRepository } from '../repositories/deal.repository';
 import { AuthUser } from '../types/database';
 import { logActivity } from './activity.service';
-import { CreateDealInput, UpdateDealInput, UpdateDealStageInput } from '../schemas/deal.schema';
+import {
+  CreateDealInput,
+  UpdateDealInput,
+  UpdateDealStageInput,
+} from '../schemas/deal.schema';
 
 const STAGE_PROBABILITIES: Record<string, number> = {
   prospecting: 10,
@@ -45,7 +49,8 @@ export const createDeal = async (user: AuthUser, body: CreateDealInput) => {
     title: body.title,
     value: body.value ?? 0,
     stage: body.stage ?? 'prospecting',
-    probability: body.probability ?? STAGE_PROBABILITIES[body.stage ?? 'prospecting'],
+    probability:
+      body.probability ?? STAGE_PROBABILITIES[body.stage ?? 'prospecting'],
     expected_close_dt: body.expected_close_dt || null,
     lead_id: body.lead_id || null,
     company_id: body.company_id || null,
@@ -71,8 +76,16 @@ export const updateDeal = async (
   body: UpdateDealInput,
 ) => {
   const allowed = [
-    'title', 'value', 'stage', 'probability', 'expected_close_dt',
-    'lead_id', 'company_id', 'contact_id', 'assigned_to', 'lost_reason',
+    'title',
+    'value',
+    'stage',
+    'probability',
+    'expected_close_dt',
+    'lead_id',
+    'company_id',
+    'contact_id',
+    'assigned_to',
+    'lost_reason',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
@@ -80,7 +93,10 @@ export const updateDeal = async (
     if (body[field] !== undefined) updateData[field] = body[field];
   }
 
-  const data = (await dealRepository.update(id, updateData, user)) as Record<string, string>;
+  const data = (await dealRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'deal_updated',
@@ -103,14 +119,21 @@ export const updateDealStage = async (
   };
 
   if (body.lost_reason) updateData['lost_reason'] = body.lost_reason;
-  if (body.actual_close_dt) updateData['actual_close_dt'] = body.actual_close_dt;
+  if (body.actual_close_dt)
+    updateData['actual_close_dt'] = body.actual_close_dt;
 
   // Auto-set close date on terminal stages
-  if ((body.stage === 'closed_won' || body.stage === 'closed_lost') && !body.actual_close_dt) {
+  if (
+    (body.stage === 'closed_won' || body.stage === 'closed_lost') &&
+    !body.actual_close_dt
+  ) {
     updateData['actual_close_dt'] = new Date().toISOString().slice(0, 10);
   }
 
-  const data = (await dealRepository.update(id, updateData, user)) as Record<string, string>;
+  const data = (await dealRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'deal_stage_changed',

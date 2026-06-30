@@ -1,4 +1,3 @@
-/// <reference path="../types/express.d.ts" />
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
 import { logger } from '../config/logger';
@@ -11,7 +10,8 @@ export const errorHandler = (
 ): void => {
   const isOperational = err instanceof AppError ? err.isOperational : false;
   const statusCode = err instanceof AppError ? err.statusCode : 500;
-  const message = err instanceof AppError ? err.message : 'Internal Server Error';
+  const message =
+    err instanceof AppError ? err.message : 'Internal Server Error';
   const errors = err instanceof AppError ? err.errors : undefined;
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -43,13 +43,10 @@ export const errorHandler = (
   res.status(statusCode).json({
     success: false,
     requestId: req.requestId, // Helps users report exact error logs
-    message:
-      isProduction && !isOperational ? 'Internal Server Error' : message,
+    message: isProduction && !isOperational ? 'Internal Server Error' : message,
     ...(errors ? { errors } : {}),
     // Never expose stack trace in production
-    ...(!isProduction && err instanceof Error
-      ? { stack: err.stack }
-      : {}),
+    ...(!isProduction && err instanceof Error ? { stack: err.stack } : {}),
   });
 };
 

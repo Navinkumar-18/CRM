@@ -1,7 +1,10 @@
 import { companyRepository } from '../repositories/company.repository';
 import { AuthUser } from '../types/database';
 import { logActivity } from './activity.service';
-import { CreateCompanyInput, UpdateCompanyInput } from '../schemas/company.schema';
+import {
+  CreateCompanyInput,
+  UpdateCompanyInput,
+} from '../schemas/company.schema';
 
 export const getCompanies = async (
   user: AuthUser,
@@ -17,7 +20,9 @@ export const getCompanies = async (
     user,
     { page, limit },
     filters,
-    search ? { fields: ['name', 'email', 'industry'], query: search } : undefined,
+    search
+      ? { fields: ['name', 'email', 'industry'], query: search }
+      : undefined,
   );
 };
 
@@ -25,7 +30,10 @@ export const getCompanyById = async (id: string) => {
   return companyRepository.findById(id);
 };
 
-export const createCompany = async (user: AuthUser, body: CreateCompanyInput) => {
+export const createCompany = async (
+  user: AuthUser,
+  body: CreateCompanyInput,
+) => {
   const data = (await companyRepository.create({
     name: body.name,
     industry: body.industry || null,
@@ -59,9 +67,20 @@ export const updateCompany = async (
   body: UpdateCompanyInput,
 ) => {
   const allowed = [
-    'name', 'industry', 'website', 'phone', 'email', 'address',
-    'city', 'state', 'country', 'gst_number', 'iso_certificate',
-    'sector', 'owner_id', 'verified',
+    'name',
+    'industry',
+    'website',
+    'phone',
+    'email',
+    'address',
+    'city',
+    'state',
+    'country',
+    'gst_number',
+    'iso_certificate',
+    'sector',
+    'owner_id',
+    'verified',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
@@ -69,7 +88,10 @@ export const updateCompany = async (
     if (body[field] !== undefined) updateData[field] = body[field];
   }
 
-  const data = (await companyRepository.update(id, updateData, user)) as Record<string, string>;
+  const data = (await companyRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'company_updated',

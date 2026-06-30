@@ -20,7 +20,9 @@ export const getDashboardSummary = async (user: AuthUser) => {
   ] = await Promise.all([
     // Total leads
     (() => {
-      let q = supabase.from('leads').select('id', { count: 'exact', head: true });
+      let q = supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true });
       if (scopeId) q = q.eq('assigned_to', scopeId);
       return q;
     })(),
@@ -52,7 +54,9 @@ export const getDashboardSummary = async (user: AuthUser) => {
     })(),
     // Total contacts
     (() => {
-      let q = supabase.from('contacts').select('id', { count: 'exact', head: true });
+      let q = supabase
+        .from('contacts')
+        .select('id', { count: 'exact', head: true });
       if (scopeId) q = q.eq('owner_id', scopeId);
       return q;
     })(),
@@ -60,7 +64,9 @@ export const getDashboardSummary = async (user: AuthUser) => {
     supabase.from('companies').select('id', { count: 'exact', head: true }),
     // Total customers
     (() => {
-      let q = supabase.from('customers').select('id', { count: 'exact', head: true });
+      let q = supabase
+        .from('customers')
+        .select('id', { count: 'exact', head: true });
       if (scopeId) q = q.eq('assigned_to', scopeId);
       return q;
     })(),
@@ -97,11 +103,16 @@ export const getPipelineRevenue = async (user: AuthUser) => {
 
   const stages = ['prospecting', 'qualification', 'proposal', 'negotiation'];
   const result = stages.map((stage) => {
-    const rows = (data ?? []).filter((r: { stage: string }) => r.stage === stage);
+    const rows = (data ?? []).filter(
+      (r: { stage: string }) => r.stage === stage,
+    );
     return {
       stage,
       count: rows.length,
-      total: rows.reduce((sum: number, r: { value: number }) => sum + Number(r.value || 0), 0),
+      total: rows.reduce(
+        (sum: number, r: { value: number }) => sum + Number(r.value || 0),
+        0,
+      ),
     };
   });
 
@@ -136,6 +147,7 @@ export const getLeadFunnel = async (user: AuthUser) => {
   const statuses = ['new', 'contacted', 'qualified', 'won', 'lost'];
   return statuses.map((status) => ({
     status,
-    count: (data ?? []).filter((r: { status: string }) => r.status === status).length,
+    count: (data ?? []).filter((r: { status: string }) => r.status === status)
+      .length,
   }));
 };

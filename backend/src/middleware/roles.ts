@@ -5,7 +5,9 @@ import { UserRole } from '../types/database';
 export const authorize = (...roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({ success: false, message: 'Authentication required' });
+      res
+        .status(401)
+        .json({ success: false, message: 'Authentication required' });
       return;
     }
 

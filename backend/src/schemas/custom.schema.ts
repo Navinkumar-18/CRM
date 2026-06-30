@@ -7,7 +7,10 @@ export const createCustomModuleSchema = z
       .string()
       .min(1)
       .max(100)
-      .regex(/^[a-z0-9_]+$/, 'Slug must be lowercase letters, numbers, or underscores')
+      .regex(
+        /^[a-z0-9_]+$/,
+        'Slug must be lowercase letters, numbers, or underscores',
+      )
       .trim(),
     icon: z.string().max(50).optional().default('cube'),
     sector: z.string().max(50).optional().default('general'),
@@ -21,10 +24,22 @@ export const createCustomFieldSchema = z
       .string()
       .min(1)
       .max(100)
-      .regex(/^[a-z0-9_]+$/, 'Field key must be lowercase letters, numbers, or underscores')
+      .regex(
+        /^[a-z0-9_]+$/,
+        'Field key must be lowercase letters, numbers, or underscores',
+      )
       .trim(),
     field_type: z
-      .enum(['text', 'number', 'date', 'boolean', 'select', 'multi_select', 'file', 'relation'])
+      .enum([
+        'text',
+        'number',
+        'date',
+        'boolean',
+        'select',
+        'multi_select',
+        'file',
+        'relation',
+      ])
       .default('text'),
     required: z.boolean().default(false),
     options: z.array(z.string().max(100)).optional(),

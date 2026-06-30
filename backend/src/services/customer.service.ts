@@ -1,6 +1,5 @@
 import { customerRepository } from '../repositories/customer.repository';
 import { AuthUser } from '../types/database';
-import { resolveAssignedTo } from '../utils/access';
 import { logActivity } from './activity.service';
 import {
   CreateCustomerInput,
@@ -31,7 +30,7 @@ export const createCustomer = async (
   user: AuthUser,
   body: CreateCustomerInput,
 ) => {
-  const data = await customerRepository.create({
+  const data = (await customerRepository.create({
     name: body.name,
     email: body.email || null,
     phone: body.phone || null,
@@ -40,7 +39,7 @@ export const createCustomer = async (
     status: body.status || 'prospect',
     sector: body.sector || 'general',
     notes: body.notes || null,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
 
   void logActivity({
     type: 'customer_created',
@@ -77,7 +76,11 @@ export const updateCustomer = async (
 
   // Removed assignedTo logic due to missing column in DB schema
 
-  const data = await customerRepository.update(id, updateData, user) as Record<string, string>;
+  const data = (await customerRepository.update(
+    id,
+    updateData,
+    user,
+  )) as Record<string, string>;
 
   void logActivity({
     type: 'customer_updated',

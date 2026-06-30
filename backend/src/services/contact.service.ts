@@ -1,7 +1,10 @@
 import { contactRepository } from '../repositories/contact.repository';
 import { AuthUser } from '../types/database';
 import { logActivity } from './activity.service';
-import { CreateContactInput, UpdateContactInput } from '../schemas/contact.schema';
+import {
+  CreateContactInput,
+  UpdateContactInput,
+} from '../schemas/contact.schema';
 
 export const getContacts = async (
   user: AuthUser,
@@ -17,7 +20,9 @@ export const getContacts = async (
     user,
     { page, limit },
     filters,
-    search ? { fields: ['first_name', 'last_name', 'email'], query: search } : undefined,
+    search
+      ? { fields: ['first_name', 'last_name', 'email'], query: search }
+      : undefined,
   );
 };
 
@@ -25,7 +30,10 @@ export const getContactById = async (id: string) => {
   return contactRepository.findById(id);
 };
 
-export const createContact = async (user: AuthUser, body: CreateContactInput) => {
+export const createContact = async (
+  user: AuthUser,
+  body: CreateContactInput,
+) => {
   const data = (await contactRepository.create({
     first_name: body.first_name,
     last_name: body.last_name || null,
@@ -53,7 +61,13 @@ export const updateContact = async (
   body: UpdateContactInput,
 ) => {
   const allowed = [
-    'first_name', 'last_name', 'email', 'phone', 'title', 'company_id', 'owner_id',
+    'first_name',
+    'last_name',
+    'email',
+    'phone',
+    'title',
+    'company_id',
+    'owner_id',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
@@ -61,7 +75,10 @@ export const updateContact = async (
     if (body[field] !== undefined) updateData[field] = body[field];
   }
 
-  const data = (await contactRepository.update(id, updateData, user)) as Record<string, string>;
+  const data = (await contactRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'contact_updated',

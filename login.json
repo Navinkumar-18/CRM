@@ -1,0 +1,1 @@
+{"success":false,"requestId":"e569892c-727f-4e74-86b9-93065ecb4801","message":"Invalid credentials","stack":"Error: Invalid credentials\n    at loginUser (/home/nerupu-navin/crm/backend/dist/services/auth.service.js:111:15)\n    at async login (/home/nerupu-navin/crm/backend/dist/controllers/auth.controller.js:36:53)"}

@@ -7,7 +7,12 @@ export const createCompanySchema = z
   .object({
     name: z.string().min(1, 'Company name is required').max(255).trim(),
     industry: optionalString(100),
-    website: z.string().url('Invalid URL').max(255).optional().or(z.literal('')),
+    website: z
+      .string()
+      .url('Invalid URL')
+      .max(255)
+      .optional()
+      .or(z.literal('')),
     phone: optionalString(50),
     email: z
       .string()
@@ -23,7 +28,14 @@ export const createCompanySchema = z
     gst_number: optionalString(20),
     iso_certificate: optionalString(100),
     sector: z
-      .enum(['general', 'school', 'hospital', 'ecommerce', 'manufacturing', 'real_estate'])
+      .enum([
+        'general',
+        'school',
+        'hospital',
+        'ecommerce',
+        'manufacturing',
+        'real_estate',
+      ])
       .optional()
       .default('general'),
     owner_id: z.string().uuid().optional(),
@@ -34,7 +46,14 @@ export const updateCompanySchema = createCompanySchema
   .omit({ sector: true })
   .extend({
     sector: z
-      .enum(['general', 'school', 'hospital', 'ecommerce', 'manufacturing', 'real_estate'])
+      .enum([
+        'general',
+        'school',
+        'hospital',
+        'ecommerce',
+        'manufacturing',
+        'real_estate',
+      ])
       .optional(),
     verified: z.boolean().optional(),
   })

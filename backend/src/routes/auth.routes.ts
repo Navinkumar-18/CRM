@@ -28,16 +28,12 @@ import {
 const router = Router();
 
 // Public auth routes — all validated via Zod schema middleware
-router.post(
-  '/register',
-  validate(registerSchema),
-  register,
-);
+router.post('/register', validate(registerSchema), register);
 
 router.post(
   '/login',
-  authSlowDown,    // Progressive delay after 2 failures
-  authLimiter,     // Hard limit: 5 attempts per 15 min
+  authSlowDown, // Progressive delay after 2 failures
+  authLimiter, // Hard limit: 5 attempts per 15 min
   validate(loginSchema),
   login,
 );

@@ -51,7 +51,10 @@ export const login = async (
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await loginUser(email, password);
+    const { accessToken, refreshToken, user } = await loginUser(
+      email,
+      password,
+    );
 
     res
       .status(200)
@@ -119,7 +122,11 @@ export const updateMe = async (
 ): Promise<void> => {
   try {
     const { name, email, password } = req.body;
-    const user = await updateUserService(req.user!.id, { name, email, password });
+    const user = await updateUserService(req.user!.id, {
+      name,
+      email,
+      password,
+    });
     res.status(200).json({ success: true, data: toCamelCase(user) });
   } catch (error) {
     next(error);

@@ -13,9 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Always use the authenticated user as From — Gmail rejects mismatched senders
-const fromAddress = env.smtpUser
-  ? `Zuna CRM <${env.smtpUser}>`
-  : env.smtpFrom;
+const fromAddress = env.smtpUser ? `Zuna CRM <${env.smtpUser}>` : env.smtpFrom;
 
 export const verifyTransporter = async (): Promise<boolean> => {
   try {

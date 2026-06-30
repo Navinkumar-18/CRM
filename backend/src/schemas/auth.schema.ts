@@ -39,7 +39,10 @@ export const loginSchema = z.object({
     .string()
     .email('Please provide a valid email address')
     .transform((v) => v.trim().toLowerCase()),
-  password: z.string().min(1, 'Password is required').max(128, 'Password too long'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .max(128, 'Password too long'),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -55,7 +58,12 @@ export const resetPasswordSchema = z.object({
 
 export const updateProfileSchema = z.object({
   name: z.string().min(1).max(50).trim().optional(),
-  email: z.string().email().max(254).transform((v) => v.trim().toLowerCase()).optional(),
+  email: z
+    .string()
+    .email()
+    .max(254)
+    .transform((v) => v.trim().toLowerCase())
+    .optional(),
   password: passwordSchema.optional(),
 });
 

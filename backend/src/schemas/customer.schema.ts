@@ -1,14 +1,20 @@
 import { z } from 'zod';
 
 const customerStatus = z.enum(['active', 'inactive', 'prospect']).optional();
-const sector = z.enum(['general', 'school', 'hospital', 'ecommerce']).optional();
+const sector = z
+  .enum(['general', 'school', 'hospital', 'ecommerce'])
+  .optional();
 
 const optionalString = (max = 500) =>
   z.string().max(max).optional().or(z.literal(''));
 
 export const createCustomerSchema = z
   .object({
-    name: z.string().min(1, 'Name is required').max(100, 'Name too long').trim(),
+    name: z
+      .string()
+      .min(1, 'Name is required')
+      .max(100, 'Name too long')
+      .trim(),
     email: z
       .string()
       .email('Invalid email')

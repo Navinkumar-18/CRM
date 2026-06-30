@@ -1,4 +1,3 @@
-/// <reference path="./types/express.d.ts" />
 import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
@@ -28,7 +27,6 @@ import contactRoutes from './routes/contact.routes';
 import dealRoutes from './routes/deal.routes';
 import noteRoutes from './routes/note.routes';
 import customRoutes from './routes/custom.routes';
-
 
 const app = express();
 
@@ -86,7 +84,10 @@ app.use(
       if (env.allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        logger.warn({ origin }, 'CORS: blocked request from unauthorized origin');
+        logger.warn(
+          { origin },
+          'CORS: blocked request from unauthorized origin',
+        );
         callback(new Error(`CORS: origin ${origin} not allowed`));
       }
     },
@@ -154,7 +155,6 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/deals', dealRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/custom', customRoutes);
-
 
 // ─── Root Endpoint ───────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {

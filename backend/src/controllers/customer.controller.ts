@@ -7,7 +7,10 @@ import {
   updateCustomer,
   deleteCustomer,
 } from '../services/customer.service';
-import { CreateCustomerInput, UpdateCustomerInput } from '../schemas/customer.schema';
+import {
+  CreateCustomerInput,
+  UpdateCustomerInput,
+} from '../schemas/customer.schema';
 
 export const list = async (
   req: Request,

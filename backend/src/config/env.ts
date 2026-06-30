@@ -27,7 +27,9 @@ const validateJwtSecret = (key: string, name: string) => {
   // Rough entropy check: must not be all same characters
   const uniqueChars = new Set(value.split('')).size;
   if (uniqueChars < 10) {
-    throw new Error(`${name} does not have sufficient entropy (too repetitive)`);
+    throw new Error(
+      `${name} does not have sufficient entropy (too repetitive)`,
+    );
   }
 };
 
@@ -72,6 +74,7 @@ export const env = {
   smtpUser: process.env.SMTP_USER,
   smtpPass: process.env.SMTP_PASS,
   smtpFrom: process.env.SMTP_FROM || 'Zuna CRM <noreply@zunacrm.com>',
+  gstApiKey: process.env.GST_API_KEY,
   // Rate limiting (configurable via env for different deployment tiers)
   authRateLimitMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '5', 10),
   authRateLimitWindowMs: parseInt(

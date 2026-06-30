@@ -5,7 +5,12 @@ import { CreateNoteInput, UpdateNoteInput } from '../schemas/note.schema';
 
 export const getNotes = async (
   user: AuthUser,
-  filters: { lead_id?: string; deal_id?: string; contact_id?: string; company_id?: string },
+  filters: {
+    lead_id?: string;
+    deal_id?: string;
+    contact_id?: string;
+    company_id?: string;
+  },
   page: number,
   limit: number,
 ) => {

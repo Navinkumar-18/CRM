@@ -15,6 +15,11 @@ router.get('/', list);
 router.post('/', validate(createTaskSchema), create);
 router.put('/:id', validateUUID('id'), validate(updateTaskSchema), update);
 // Only admin/manager can delete tasks
-router.delete('/:id', validateUUID('id'), authorize('admin', 'manager'), remove);
+router.delete(
+  '/:id',
+  validateUUID('id'),
+  authorize('admin', 'manager'),
+  remove,
+);
 
 export default router;

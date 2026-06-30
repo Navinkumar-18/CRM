@@ -10,7 +10,10 @@ export const getActivities = async (
 ): Promise<void> => {
   try {
     // Cap limit to prevent large data dumps
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(req.query.limit as string) || 20),
+    );
 
     const query = applyOwnershipScope(
       supabase.from('activities').select('*'),

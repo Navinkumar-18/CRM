@@ -12,10 +12,7 @@ const dealStageEnum = z.enum([
 export const createDealSchema = z
   .object({
     title: z.string().min(1, 'Deal title is required').max(255).trim(),
-    value: z
-      .number()
-      .min(0)
-      .default(0),
+    value: z.number().min(0).default(0),
     stage: dealStageEnum.optional().default('prospecting'),
     probability: z.number().int().min(0).max(100).optional(),
     expected_close_dt: z

@@ -23,11 +23,21 @@ const router = Router();
 router.use(protect);
 
 router.get('/', list);
-router.get('/pipeline', pipeline);                    // pipeline summary (before /:id)
+router.get('/pipeline', pipeline); // pipeline summary (before /:id)
 router.get('/:id', validateUUID('id'), getOne);
 router.post('/', validate(createDealSchema), create);
 router.put('/:id', validateUUID('id'), validate(updateDealSchema), update);
-router.patch('/:id/stage', validateUUID('id'), validate(updateDealStageSchema), changeStage);
-router.delete('/:id', validateUUID('id'), authorize('admin', 'manager'), remove);
+router.patch(
+  '/:id/stage',
+  validateUUID('id'),
+  validate(updateDealStageSchema),
+  changeStage,
+);
+router.delete(
+  '/:id',
+  validateUUID('id'),
+  authorize('admin', 'manager'),
+  remove,
+);
 
 export default router;

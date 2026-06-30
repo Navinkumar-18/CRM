@@ -1,7 +1,13 @@
 export type UserRole = 'admin' | 'manager' | 'employee';
 
 export type CustomerStatus = 'active' | 'inactive' | 'prospect';
-export type Sector = 'general' | 'school' | 'hospital' | 'ecommerce' | 'manufacturing' | 'real_estate';
+export type Sector =
+  | 'general'
+  | 'school'
+  | 'hospital'
+  | 'ecommerce'
+  | 'manufacturing'
+  | 'real_estate';
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';
 export type TaskStatus = 'pending' | 'in_progress' | 'completed';
 export type TaskPriority = 'low' | 'medium' | 'high';

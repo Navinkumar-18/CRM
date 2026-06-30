@@ -14,6 +14,11 @@ router.use(protect);
 router.get('/', list);
 router.post('/', validate(createLeadSchema), create);
 router.put('/:id', validateUUID('id'), validate(updateLeadSchema), update);
-router.delete('/:id', validateUUID('id'), authorize('admin', 'manager'), remove);
+router.delete(
+  '/:id',
+  validateUUID('id'),
+  authorize('admin', 'manager'),
+  remove,
+);
 
 export default router;

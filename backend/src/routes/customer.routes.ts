@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { list, create, update, remove } from '../controllers/customer.controller';
+import {
+  list,
+  create,
+  update,
+  remove,
+} from '../controllers/customer.controller';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roles';
 import { validate } from '../middleware/validate';
@@ -17,6 +22,11 @@ router.use(protect);
 router.get('/', list);
 router.post('/', validate(createCustomerSchema), create);
 router.put('/:id', validateUUID('id'), validate(updateCustomerSchema), update);
-router.delete('/:id', validateUUID('id'), authorize('admin', 'manager'), remove);
+router.delete(
+  '/:id',
+  validateUUID('id'),
+  authorize('admin', 'manager'),
+  remove,
+);
 
 export default router;

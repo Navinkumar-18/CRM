@@ -8,7 +8,11 @@ import {
 } from '../services/note.service';
 import { CreateNoteInput, UpdateNoteInput } from '../schemas/note.schema';
 
-export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const list = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string) || 20);
@@ -21,13 +25,20 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
     };
 
     const result = await getNotes(req.user!, filters, page, limit);
-    res.json({ success: true, data: { ...result, data: toCamelCase(result.data) } });
+    res.json({
+      success: true,
+      data: { ...result, data: toCamelCase(result.data) },
+    });
   } catch (error) {
     next(error);
   }
 };
 
-export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const create = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const note = await createNote(req.user!, req.body as CreateNoteInput);
     res.status(201).json({ success: true, data: toCamelCase(note) });
@@ -36,16 +47,28 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
   }
 };
 
-export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
-    const note = await updateNote(req.user!, req.params.id as string, req.body as UpdateNoteInput);
+    const note = await updateNote(
+      req.user!,
+      req.params.id as string,
+      req.body as UpdateNoteInput,
+    );
     res.json({ success: true, data: toCamelCase(note) });
   } catch (error) {
     next(error);
   }
 };
 
-export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const remove = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     await deleteNote(req.user!, req.params.id as string);
     res.json({ success: true, data: {} });

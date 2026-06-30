@@ -11,7 +11,11 @@ const seedAdminEmail =
 const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@123';
 
 const isMissingColumnError = (error: any, column: string): boolean => {
-  return error && typeof error.message === 'string' && error.message.includes(`'${column}' column`);
+  return (
+    error &&
+    typeof error.message === 'string' &&
+    error.message.includes(`'${column}' column`)
+  );
 };
 
 const seed = async () => {
@@ -199,7 +203,10 @@ const seed = async () => {
       }
       console.log('Created Activities...');
     } catch (err: any) {
-      console.error('Failed to seed related entities (schema missing?):', err.message);
+      console.error(
+        'Failed to seed related entities (schema missing?):',
+        err.message,
+      );
     }
 
     console.log('Seed completed successfully!');

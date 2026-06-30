@@ -10,10 +10,10 @@ import type { StringValue } from 'ms';
 
 /** JWT payload shape — stored in both access and refresh tokens */
 interface JwtPayload {
-  sub: string;  // user id (standard claim)
-  jti: string;  // unique token id (for future blacklisting)
-  iss: string;  // issuer
-  aud: string;  // audience
+  sub: string; // user id (standard claim)
+  jti: string; // unique token id (for future blacklisting)
+  iss: string; // issuer
+  aud: string; // audience
 }
 
 const generateAccessToken = (userId: string): string => {
@@ -58,7 +58,10 @@ const purgeExpiredTokens = async (userId: string): Promise<void> => {
 
   if (error) {
     // Non-fatal — log and continue
-    logger.warn({ err: error, userId }, 'Failed to purge expired refresh tokens');
+    logger.warn(
+      { err: error, userId },
+      'Failed to purge expired refresh tokens',
+    );
   }
 };
 
@@ -102,7 +105,9 @@ export const registerUser = async (
     .single();
 
   if (user) {
-    user.role = user.role || (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
+    user.role =
+      user.role ||
+      (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
   }
 
   if (error || !user) {
@@ -173,7 +178,9 @@ export const loginUser = async (email: string, password: string) => {
 
   logger.info({ userId: user.id, email: user.email }, 'User logged in');
 
-  const role = user.role || (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
+  const role =
+    user.role ||
+    (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
 
   return {
     user: {
@@ -244,7 +251,7 @@ export const refreshTokens = async (oldRefreshToken: string) => {
 
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, name, email')
+    .select('id, name, email, role')
     .eq('id', decoded.sub)
     .single();
 
@@ -265,12 +272,12 @@ export const refreshTokens = async (oldRefreshToken: string) => {
     expires_at: expiresAt,
   });
 
-  const resolvedRole = user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee';
+  const role = (user as any).role || 'employee';
 
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
-    user: { id: user.id, name: user.name, email: user.email, role: resolvedRole },
+    user: { id: user.id, name: user.name, email: user.email, role },
   };
 };
 
@@ -287,7 +294,7 @@ export const revokeToken = async (refreshToken: string) => {
 export const getMe = async (userId: string) => {
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, name, email')
+    .select('id, name, email, role')
     .eq('id', userId)
     .single();
 
@@ -295,11 +302,9 @@ export const getMe = async (userId: string) => {
     throw new AppError('User not found', 404);
   }
 
-  const resolvedRole = user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee';
-
   return {
     ...user,
-    role: resolvedRole,
+    role: (user as any).role || 'employee',
   };
 };
 
@@ -402,12 +407,15 @@ export const resetPassword = async (token: string, password: string) => {
     .eq('user_id', user.id)
     .is('revoked_at', null);
 
-  logger.info({ userId: user.id }, 'Password reset completed — all sessions revoked');
+  logger.info(
+    { userId: user.id },
+    'Password reset completed — all sessions revoked',
+  );
 };
 
 export const updateMe = async (
   userId: string,
-  updates: { name?: string; email?: string; password?: string }
+  updates: { name?: string; email?: string; password?: string },
 ) => {
   const updateData: Record<string, any> = {};
 
@@ -430,7 +438,10 @@ export const updateMe = async (
   }
 
   if (updates.password) {
-    updateData.password_hash = await bcrypt.hash(updates.password, env.bcryptRounds);
+    updateData.password_hash = await bcrypt.hash(
+      updates.password,
+      env.bcryptRounds,
+    );
   }
 
   if (Object.keys(updateData).length === 0) {
@@ -441,17 +452,15 @@ export const updateMe = async (
     .from('users')
     .update(updateData)
     .eq('id', userId)
-    .select('id, name, email')
+    .select('id, name, email, role')
     .single();
 
   if (error || !user) {
     throw new AppError('Failed to update profile', 400);
   }
 
-  const resolvedRole = user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee';
-  
   return {
     ...user,
-    role: resolvedRole,
+    role: (user as any).role || 'employee',
   };
 };

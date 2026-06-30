@@ -85,7 +85,10 @@ export const update = async (
       updateData.password_hash = await bcrypt.hash(password, env.bcryptRounds);
     }
 
-    const user = await userRepository.update(req.params.id as string, updateData);
+    const user = await userRepository.update(
+      req.params.id as string,
+      updateData,
+    );
 
     // Invalidate auth cache so role changes take effect within 30s
     invalidateUserCache(req.params.id as string);

@@ -1,6 +1,5 @@
 import { taskRepository } from '../repositories/task.repository';
 import { AuthUser } from '../types/database';
-import { resolveAssignedTo } from '../utils/access';
 import { logActivity } from './activity.service';
 import { CreateTaskInput, UpdateTaskInput } from '../schemas/task.schema';
 
@@ -17,14 +16,14 @@ export const getTasks = async (
 };
 
 export const createTask = async (user: AuthUser, body: CreateTaskInput) => {
-  const data = await taskRepository.create({
+  const data = (await taskRepository.create({
     title: body.title,
     description: body.description || null,
     status: body.status || 'pending',
     priority: body.priority || 'medium',
     due_date: body.dueDate || null,
     customer_id: body.customerId || null,
-  }) as Record<string, string>;
+  })) as Record<string, string>;
 
   void logActivity({
     type: 'task_assigned',
@@ -57,7 +56,10 @@ export const updateTask = async (
     updateData.customer_id = body.customerId;
   }
 
-  const data = await taskRepository.update(id, updateData, user) as Record<string, string>;
+  const data = (await taskRepository.update(id, updateData, user)) as Record<
+    string,
+    string
+  >;
 
   void logActivity({
     type: 'task_assigned',
