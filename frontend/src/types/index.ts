@@ -2,7 +2,7 @@ export type CustomerStatus = 'active' | 'inactive' | 'prospect';
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost';
 export type TaskStatus = 'pending' | 'in_progress' | 'completed';
 export type TaskPriority = 'low' | 'medium' | 'high';
-export type UserRole = 'admin' | 'manager' | 'employee';
+export type UserRole = 'admin' | 'manager' | 'employee' | 'staff';
 export type Sector = 'general' | 'school' | 'hospital' | 'ecommerce' | 'manufacturing' | 'real_estate';
 export type ActivityType =
   | 'customer_created'
@@ -27,6 +27,18 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  phone?: string;
+  position?: string;
+  department?: string;
+  status?: 'active' | 'inactive';
+  employeeId?: string;
+  avatar?: string;
+  joinedDate?: string;
+  performance?: number;
+  assignedLeadsCount?: number;
+  assignedCustomersCount?: number;
+  pendingTasksCount?: number;
+  completedTasksCount?: number;
 }
 
 export interface Customer {

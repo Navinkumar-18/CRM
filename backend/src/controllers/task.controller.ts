@@ -17,8 +17,9 @@ export const list = async (
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string) || 15);
     const status = req.query.status as string;
+    const dateFilter = req.query.dateFilter as string;
 
-    const result = await getTasks(req.user!, page, limit, status);
+    const result = await getTasks(req.user!, page, limit, status, dateFilter);
 
     res.status(200).json({
       success: true,

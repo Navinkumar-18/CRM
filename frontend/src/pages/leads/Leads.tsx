@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { RecordDetailDrawer } from '../../components/common/RecordDetailDrawer';
 import { useLeadsApi } from '../../hooks/useApi';
 import { SECTORS, LEAD_STAGES, getSectorColor } from '../../constants';
 import type { Lead } from '../../types';
@@ -19,6 +20,10 @@ export const Leads = () => {
   const [formError, setFormError] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showStatusFilter, setShowStatusFilter] = useState(false);
+
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedLeadForDrawer, setSelectedLeadForDrawer] = useState<Lead | null>(null);
 
   const { useList, useCreate, useUpdate, useDelete } = useLeadsApi();
   const { data: leads, isLoading } = useList({ limit: 100, sector: statusFilter || undefined });
@@ -70,6 +75,8 @@ export const Leads = () => {
   const getLeadsByStatus = (status: string) => {
     return (leads?.data as Lead[])?.filter((lead: Lead) => lead.status === status) || [];
   };
+
+  const selectedLead = (leads?.data as Lead[])?.find(l => l.id === selectedLeadForDrawer?.id) || selectedLeadForDrawer;
 
   return (
     <div className="flex min-h-[calc(100vh-120px)] flex-col space-y-6">
@@ -132,7 +139,10 @@ export const Leads = () => {
                     {stageLeads.map((lead: Lead) => (
                       <div
                         key={lead.id}
-                        onClick={() => openEdit(lead)}
+                        onClick={() => {
+                          setSelectedLeadForDrawer(lead);
+                          setDrawerOpen(true);
+                        }}
                         className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
                       >
                         <div className="flex justify-between items-start mb-2">
@@ -253,6 +263,63 @@ export const Leads = () => {
         title="Delete Lead"
         message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
       />
+
+      {selectedLead && (
+        <RecordDetailDrawer
+          open={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setSelectedLeadForDrawer(null);
+          }}
+          recordId={selectedLead.id}
+          recordType="lead"
+          recordName={selectedLead.name}
+          additionalDetails={
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {selectedLead.email && (
+                <div className="col-span-2">
+                  <p className="text-slate-500 text-xs font-medium">Email</p>
+                  <p className="font-semibold text-slate-800 mt-0.5 break-all">{selectedLead.email}</p>
+                </div>
+              )}
+              {selectedLead.phone && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">Phone</p>
+                  <p className="font-semibold text-slate-800 mt-0.5">{selectedLead.phone}</p>
+                </div>
+              )}
+              {selectedLead.source && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">Source</p>
+                  <p className="font-semibold text-slate-800 mt-0.5">{selectedLead.source}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-slate-500 text-xs font-medium">Sector</p>
+                <span className={cn("px-2 py-0.5 rounded text-[10px] font-medium border mt-1 inline-block capitalize", getSectorColor(selectedLead.sector))}>
+                  {SECTORS.find(s => s.value === selectedLead.sector)?.label || selectedLead.sector}
+                </span>
+              </div>
+              <div>
+                <p className="text-slate-500 text-xs font-medium">Status</p>
+                <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 capitalize", LEAD_STAGES.find(s => s.value === selectedLead.status)?.color)}>
+                  {LEAD_STAGES.find(s => s.value === selectedLead.status)?.label || selectedLead.status}
+                </span>
+              </div>
+              <div className="col-span-2 pt-2 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => {
+                    openEdit(selectedLead);
+                  }}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  Edit Lead Details
+                </button>
+              </div>
+            </div>
+          }
+        />
+      )}
     </div>
   );
 };

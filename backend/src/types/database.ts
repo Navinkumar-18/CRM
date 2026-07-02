@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'manager' | 'employee';
+export type UserRole = 'admin' | 'manager' | 'employee' | 'staff';
 
 export type CustomerStatus = 'active' | 'inactive' | 'prospect';
 export type Sector =
@@ -54,6 +54,12 @@ export interface User {
   password_hash: string;
   name: string;
   role: UserRole;
+  phone?: string;
+  position?: string;
+  department?: string;
+  status?: 'active' | 'inactive';
+  employee_id?: string;
+  avatar?: string;
   is_verified: boolean;
   verification_token: string | null;
   reset_password_token: string | null;
@@ -67,6 +73,12 @@ export interface UserPublic {
   name: string;
   email: string;
   role?: UserRole;
+  phone?: string;
+  position?: string;
+  department?: string;
+  status?: 'active' | 'inactive';
+  employee_id?: string;
+  avatar?: string;
   created_at?: string;
 }
 

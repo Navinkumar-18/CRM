@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { 
   LayoutDashboard, 
@@ -14,29 +14,44 @@ import {
   Briefcase,
   UserCircle,
   Settings,
-  Users
+  Users,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useState, useRef, useEffect } from 'react';
 
-const navigation = [
+const adminNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Leads', href: '/leads', icon: Target },
   { name: 'Customers', href: '/customers', icon: Users },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Staff Management', href: '/staff', icon: UserCheck },
   { name: 'Companies', href: '/companies', icon: Building2 },
   { name: 'Contacts', href: '/contacts', icon: UserCircle },
-  { name: 'Leads', href: '/leads', icon: Target },
   { name: 'Deals', href: '/deals', icon: Briefcase },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Activities', href: '/activities', icon: Activity },
   { name: 'Custom Modules', href: '/custom-modules', icon: Settings },
+  { name: 'Settings', href: '/profile', icon: Settings },
+];
+
+const staffNavigation = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'My Leads', href: '/my-leads', icon: Target },
+  { name: 'My Customers', href: '/my-customers', icon: Users },
+  { name: 'My Tasks', href: '/my-tasks', icon: CheckSquare },
+  { name: 'My Profile', href: '/profile', icon: User },
 ];
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const isAdmin = user?.role === 'admin';
+  const navItems = isAdmin ? adminNavigation : staffNavigation;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -71,10 +86,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="h-16 flex items-center px-6 bg-gradient-to-r from-blue-600 to-blue-700">
           <Activity className="w-6 h-6 text-white mr-2" />
           <span className="text-xl font-bold text-white">Zuna CRM</span>
+          <span className="ml-auto text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-white/20 text-white">
+            {isAdmin ? 'Admin' : 'Staff'}
+          </span>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          {navigation.map((item) => {
+          {navItems.map((item) => {
             const isActive = location.pathname === item.href || (item.href !== '/' && location.pathname.startsWith(item.href));
             return (
               <Link
@@ -95,7 +113,26 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           })}
         </nav>
 
-
+        <div className="p-3 border-t border-slate-200/80 bg-slate-50/50">
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg">
+            <div className="flex items-center min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mr-2.5">
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+              <div className="min-w-0 pr-2">
+                <p className="text-xs font-semibold text-slate-800 truncate">{user?.name || 'User'}</p>
+                <p className="text-[10px] text-slate-500 capitalize">{user?.role || 'Staff'}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { logout(); navigate('/login'); }}
+              title="Logout"
+              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </aside>
 
       <main className="flex-1 flex flex-col min-w-0">

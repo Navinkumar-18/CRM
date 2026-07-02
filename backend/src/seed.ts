@@ -85,8 +85,13 @@ const seed = async () => {
       'Employee User',
       'employee',
     );
+    const staff = await createUser(
+      'staff@gmail.com',
+      'Sarah Jenkins (Staff)',
+      'staff',
+    );
 
-    const users = [admin, manager, employee];
+    const users = [admin, manager, employee, staff];
     console.log('Created Users...');
 
     // 2. Create Customers

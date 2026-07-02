@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { RecordDetailDrawer } from '../../components/common/RecordDetailDrawer';
 import { useCompaniesApi } from '../../hooks/useApi';
 import { SECTORS, getSectorColor } from '../../constants';
 import { verifyGst } from '../../api/companies';
@@ -26,6 +27,10 @@ export const Companies = () => {
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
   const [actionDropdown, setActionDropdown] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedCompanyForDrawer, setSelectedCompanyForDrawer] = useState<Company | null>(null);
 
   // GST Verification
   const [gstInput, setGstInput] = useState('');
@@ -125,6 +130,8 @@ export const Companies = () => {
       setDeleteTarget(null);
     } catch { /* silent for MVP */ }
   };
+
+  const selectedCompany = (data?.data as Company[])?.find(c => c.id === selectedCompanyForDrawer?.id) || selectedCompanyForDrawer;
 
   return (
     <div className="space-y-6">
@@ -226,7 +233,15 @@ export const Companies = () => {
                           {company.name.charAt(0)}
                         </div>
                         <div className="ml-4">
-                          <div className="font-semibold text-slate-900">{company.name}</div>
+                          <button
+                            onClick={() => {
+                              setSelectedCompanyForDrawer(company);
+                              setDrawerOpen(true);
+                            }}
+                            className="font-semibold text-slate-900 hover:text-blue-600 hover:underline text-left block focus:outline-none"
+                          >
+                            {company.name}
+                          </button>
                           {company.industry && <div className="text-slate-500 text-xs mt-0.5">{company.industry}</div>}
                         </div>
                       </div>
@@ -296,21 +311,21 @@ export const Companies = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Industry</label>
-              <input value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} className="input-field" placeholder="e.g. Technology" />
+              <input value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} className="input-field" placeholder="Software, Real Estate..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Website</label>
-              <input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} className="input-field" placeholder="https://..." />
+              <input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} className="input-field" placeholder="https://example.com" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Email</label>
-              <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-field" placeholder="company@email.com" />
+              <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="input-field" placeholder="info@company.com" />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Phone</label>
-              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+91 ..." />
+              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="Phone number" />
             </div>
           </div>
           <div>
@@ -357,6 +372,63 @@ export const Companies = () => {
         title="Delete Company"
         message={`Are you sure you want to delete "${deleteTarget?.name}"? This action cannot be undone.`}
       />
+
+      {selectedCompany && (
+        <RecordDetailDrawer
+          open={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setSelectedCompanyForDrawer(null);
+          }}
+          recordId={selectedCompany.id}
+          recordType="company"
+          recordName={selectedCompany.name}
+          additionalDetails={
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {selectedCompany.email && (
+                <div className="col-span-2">
+                  <p className="text-slate-500 text-xs font-medium">Email</p>
+                  <p className="font-semibold text-slate-800 mt-0.5 break-all">{selectedCompany.email}</p>
+                </div>
+              )}
+              {selectedCompany.phone && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">Phone</p>
+                  <p className="font-semibold text-slate-800 mt-0.5">{selectedCompany.phone}</p>
+                </div>
+              )}
+              {selectedCompany.website && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">Website</p>
+                  <p className="font-semibold text-slate-800 mt-0.5 break-all">{selectedCompany.website}</p>
+                </div>
+              )}
+              {selectedCompany.gstNumber && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium">GSTIN</p>
+                  <p className="font-semibold text-slate-800 mt-0.5 uppercase">{selectedCompany.gstNumber}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-slate-500 text-xs font-medium">Sector</p>
+                <span className={cn("px-2 py-0.5 rounded text-[10px] font-medium border mt-1 inline-block capitalize", getSectorColor(selectedCompany.sector))}>
+                  {SECTORS.find(s => s.value === selectedCompany.sector)?.label || selectedCompany.sector}
+                </span>
+              </div>
+              <div className="col-span-2 pt-2 border-t border-slate-100 flex justify-end">
+                <button
+                  onClick={() => {
+                    openEdit(selectedCompany);
+                  }}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  Edit Company Details
+                </button>
+              </div>
+            </div>
+          }
+        />
+      )}
     </div>
   );
 };

@@ -16,6 +16,17 @@ import { CustomModules } from './pages/custom/CustomModules';
 
 import { Register } from './pages/auth/Register';
 import { Profile } from './pages/auth/Profile';
+import { useAuthStore } from './store/authStore';
+
+// Admin Staff Management
+import { StaffManagement } from './pages/staff/StaffManagement';
+import { StaffDetails } from './pages/staff/StaffDetails';
+
+// Staff Portal
+import { StaffDashboard } from './pages/staff-portal/StaffDashboard';
+import { MyLeads } from './pages/staff-portal/MyLeads';
+import { MyCustomers } from './pages/staff-portal/MyCustomers';
+import { MyTasks } from './pages/staff-portal/MyTasks';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +37,14 @@ const queryClient = new QueryClient({
   },
 });
 
+const RoleBasedDashboard = () => {
+  const { user } = useAuthStore();
+  if (user?.role === 'admin') {
+    return <Dashboard />;
+  }
+  return <StaffDashboard />;
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -34,8 +53,19 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
+          {/* General / Shared & Staff Portal Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+            <Route path="/" element={<AppLayout><RoleBasedDashboard /></AppLayout>} />
+            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+            <Route path="/my-leads" element={<AppLayout><MyLeads /></AppLayout>} />
+            <Route path="/my-customers" element={<AppLayout><MyCustomers /></AppLayout>} />
+            <Route path="/my-tasks" element={<AppLayout><MyTasks /></AppLayout>} />
+          </Route>
+          
+          {/* Admin-Only Routes */}
+          <Route element={<ProtectedRoute requireAdmin />}>
+            <Route path="/staff" element={<AppLayout><StaffManagement /></AppLayout>} />
+            <Route path="/staff/:id" element={<AppLayout><StaffDetails /></AppLayout>} />
             <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
             <Route path="/companies" element={<AppLayout><Companies /></AppLayout>} />
             <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
@@ -44,7 +74,6 @@ function App() {
             <Route path="/tasks" element={<AppLayout><Tasks /></AppLayout>} />
             <Route path="/activities" element={<AppLayout><Activities /></AppLayout>} />
             <Route path="/custom-modules" element={<AppLayout><CustomModules /></AppLayout>} />
-            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
           </Route>
           
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -55,3 +84,4 @@ function App() {
 }
 
 export default App;
+

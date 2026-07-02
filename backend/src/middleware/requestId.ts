@@ -18,7 +18,7 @@ export const requestId = (
       ? incoming
       : crypto.randomUUID();
 
-  req.requestId = id;
+  (req as any).requestId = id;
   res.setHeader('X-Request-ID', id);
   next();
 };

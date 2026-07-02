@@ -7,7 +7,7 @@ import {
   CheckSquare, 
   Activity,
   ArrowRight,
-  DollarSign,
+  IndianRupee,
   UserCircle,
   Building2,
   Briefcase,
@@ -87,7 +87,7 @@ export const Dashboard = () => {
     { name: 'Total Customers', value: metrics?.customers || 0, icon: Users, gradient: 'from-blue-500 to-blue-600' },
     { name: 'Companies', value: metrics?.companies || 0, icon: Building2, gradient: 'from-slate-500 to-slate-600' },
     { name: 'Active Leads', value: metrics?.leads || 0, icon: Target, gradient: 'from-violet-500 to-violet-600' },
-    { name: 'Revenue Won', value: `$${(metrics?.revenueClosedWon || 0).toLocaleString()}`, icon: DollarSign, gradient: 'from-emerald-500 to-emerald-600' },
+    { name: 'Revenue Won', value: `₹${(metrics?.revenueClosedWon || 0).toLocaleString('en-IN')}`, icon: IndianRupee, gradient: 'from-emerald-500 to-emerald-600' },
     { name: 'Tasks Due', value: metrics?.tasksDue || 0, icon: CheckSquare, gradient: 'from-amber-500 to-amber-600' },
   ];
 
@@ -197,7 +197,7 @@ export const Dashboard = () => {
                     ))}
                   </Pie>
                   <RechartsTooltip 
-                    formatter={(value: any) => [`$${Number(value || 0).toLocaleString()}`, 'Revenue']}
+                    formatter={(value: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, 'Revenue']}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', textTransform: 'capitalize' }}
                   />
                   <Legend iconType="circle" formatter={(value) => <span style={{ textTransform: 'capitalize', color: '#475569', fontSize: '13px' }}>{value}</span>} />

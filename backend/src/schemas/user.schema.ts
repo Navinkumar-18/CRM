@@ -29,7 +29,11 @@ export const createUserSchema = z
       .min(1, 'Name is required')
       .max(50, 'Name must be at most 50 characters')
       .trim(),
-    role: z.enum(['admin', 'manager', 'employee']).optional(),
+    role: z.enum(['admin', 'manager', 'employee', 'staff']).optional(),
+    phone: z.string().optional(),
+    position: z.string().optional(),
+    department: z.string().optional(),
+    status: z.enum(['active', 'inactive']).optional(),
   })
   .strict();
 
@@ -37,7 +41,11 @@ export const updateUserSchema = z
   .object({
     name: z.string().min(1).max(50).trim().optional(),
     password: passwordSchema.optional(),
-    role: z.enum(['admin', 'manager', 'employee']).optional(),
+    role: z.enum(['admin', 'manager', 'employee', 'staff']).optional(),
+    phone: z.string().optional(),
+    position: z.string().optional(),
+    department: z.string().optional(),
+    status: z.enum(['active', 'inactive']).optional(),
   })
   .strict();
 

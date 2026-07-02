@@ -15,11 +15,21 @@ export const getActivities = async (
       Math.max(1, parseInt(req.query.limit as string) || 20),
     );
 
-    const query = applyOwnershipScope(
+    const leadId = req.query.lead_id as string | undefined;
+    const dealId = req.query.deal_id as string | undefined;
+    const contactId = req.query.contact_id as string | undefined;
+    const companyId = req.query.company_id as string | undefined;
+
+    let query = applyOwnershipScope(
       supabase.from('activities').select('*'),
       req.user!,
       'user_id',
     );
+
+    if (leadId) query = query.eq('lead_id', leadId);
+    if (dealId) query = query.eq('deal_id', dealId);
+    if (contactId) query = query.eq('contact_id', contactId);
+    if (companyId) query = query.eq('company_id', companyId);
 
     const { data: activities, error } = await query
       .order('created_at', { ascending: false })

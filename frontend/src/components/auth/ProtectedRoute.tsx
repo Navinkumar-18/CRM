@@ -1,11 +1,17 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useEffect, useState } from 'react';
 import api from '../../api/axios';
+import { staffDataService } from '../../services/staffDataService';
 
-export const ProtectedRoute = () => {
-  const { isAuthenticated, setUser, logout } = useAuthStore();
+interface ProtectedRouteProps {
+  requireAdmin?: boolean;
+}
+
+export const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) => {
+  const { isAuthenticated, user, setUser, logout } = useAuthStore();
   const [isChecking, setIsChecking] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const validateToken = async () => {
@@ -16,6 +22,9 @@ export const ProtectedRoute = () => {
         }
         const response = await api.get('/auth/me');
         setUser(response.data);
+        if (response.data) {
+          staffDataService.syncWithBackendUsers([response.data]);
+        }
       } catch {
         await logout();
       } finally {
@@ -36,6 +45,13 @@ export const ProtectedRoute = () => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && user?.role !== 'admin') {
+    if (location.pathname === '/leads') return <Navigate to="/my-leads" replace />;
+    if (location.pathname === '/customers') return <Navigate to="/my-customers" replace />;
+    if (location.pathname === '/tasks') return <Navigate to="/my-tasks" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

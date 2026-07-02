@@ -20,7 +20,7 @@ export const errorHandler = (
     logger.error(
       {
         err,
-        requestId: req.requestId,
+        requestId: (req as any).requestId,
         method: req.method,
         path: req.path,
         statusCode,
@@ -30,7 +30,7 @@ export const errorHandler = (
   } else {
     logger.warn(
       {
-        requestId: req.requestId,
+        requestId: (req as any).requestId,
         method: req.method,
         path: req.path,
         statusCode,
@@ -42,7 +42,7 @@ export const errorHandler = (
 
   res.status(statusCode).json({
     success: false,
-    requestId: req.requestId, // Helps users report exact error logs
+    requestId: (req as any).requestId, // Helps users report exact error logs
     message: isProduction && !isOperational ? 'Internal Server Error' : message,
     ...(errors ? { errors } : {}),
     // Never expose stack trace in production
@@ -57,7 +57,7 @@ export const notFoundHandler = (
 ): void => {
   res.status(404).json({
     success: false,
-    requestId: req.requestId,
+    requestId: (req as any).requestId,
     message: `Route not found: ${req.method} ${req.originalUrl}`,
   });
 };
