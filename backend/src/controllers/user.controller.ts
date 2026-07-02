@@ -28,13 +28,30 @@ export const list = async (
   }
 };
 
+export const getById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const user = await userRepository.findById(req.params.id as string);
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+    res.status(200).json({ success: true, data: toCamelCase(user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const create = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { email, password, name, role } = req.body as CreateUserInput;
+    const { email, password, name, role, phone, position, department, status } = req.body as CreateUserInput;
 
     // Check for duplicate email
     const { data: existing } = await supabase
@@ -55,6 +72,10 @@ export const create = async (
       password_hash: passwordHash,
       name,
       role: role || 'employee',
+      phone,
+      position,
+      department,
+      status,
     });
 
     // Audit log
@@ -76,7 +97,7 @@ export const update = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { name, password, role } = req.body as UpdateUserInput;
+    const { name, password, role, phone, position, department, status } = req.body as UpdateUserInput;
     const updateData: Record<string, unknown> = {};
 
     if (name) updateData.name = name;
@@ -84,6 +105,10 @@ export const update = async (
     if (password) {
       updateData.password_hash = await bcrypt.hash(password, env.bcryptRounds);
     }
+    if (phone !== undefined) updateData.phone = phone;
+    if (position !== undefined) updateData.position = position;
+    if (department !== undefined) updateData.department = department;
+    if (status !== undefined) updateData.status = status;
 
     const user = await userRepository.update(
       req.params.id as string,
@@ -132,6 +157,44 @@ export const remove = async (
     });
 
     res.status(200).json({ success: true, data: {} });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserActivities = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    
+    // Get staff member to attach user object
+    const staff = await userRepository.findById(id);
+    if (!staff) {
+      res.status(404).json({ success: false, message: 'Staff member not found' });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('staff_activities')
+      .select('*')
+      .eq('staff_id', id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    const activities = (data || []).map((act: any) => ({
+      id: act.id,
+      type: act.type,
+      description: act.description,
+      user: staff,
+      created_at: act.created_at,
+      metadata: act.metadata || null,
+    }));
+
+    res.status(200).json({ success: true, data: toCamelCase(activities) });
   } catch (error) {
     next(error);
   }

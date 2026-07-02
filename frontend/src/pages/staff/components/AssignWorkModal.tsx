@@ -1,17 +1,20 @@
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../../api/axios';
 import { Modal } from '../../../components/ui/Modal';
-import { staffDataService, type StaffMember } from '../../../services/staffDataService';
+import type { User } from '../../../types';
 import { Target, Users, CheckSquare, Calendar, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 
 interface AssignWorkModalProps {
   open: boolean;
   onClose: () => void;
-  staff: StaffMember | null;
+  staff: User | null;
   onAssigned: () => void;
 }
 
 export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWorkModalProps) => {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'lead' | 'customer' | 'task'>('lead');
   
   // Lead form
@@ -29,27 +32,91 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
   const [taskDueDate, setTaskDueDate] = useState(new Date(Date.now() + 3600000 * 48).toISOString().split('T')[0]);
   const [relatedName, setRelatedName] = useState('');
 
+  // Fetch real leads and customers from database
+  const { data: leadsData } = useQuery({
+    queryKey: ['all-leads-assign'],
+    queryFn: async () => {
+      const res = await api.get('/leads?limit=100');
+      return (res as any).data;
+    },
+    enabled: open,
+  });
+
+  const { data: custData } = useQuery({
+    queryKey: ['all-customers-assign'],
+    queryFn: async () => {
+      const res = await api.get('/customers?limit=100');
+      return (res as any).data;
+    },
+    enabled: open,
+  });
+
+  const leads = (leadsData?.data || []) as any[];
+  const customers = (custData?.data || []) as any[];
+
+  // Mutations for assigning
+  const assignLeadMutation = useMutation({
+    mutationFn: async (leadId: string) => {
+      await api.put(`/leads/${leadId}`, { assigned_to: staff?.id });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-leads'] });
+    },
+  });
+
+  const assignCustomerMutation = useMutation({
+    mutationFn: async (customerId: string) => {
+      await api.put(`/customers/${customerId}`, { assigned_to: staff?.id });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-customers'] });
+    },
+  });
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (taskData: any) => {
+      await api.post('/tasks', taskData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['staff-tasks'] });
+    },
+  });
+
   if (!staff) return null;
 
-  const leads = staffDataService['leads'] || [];
-  const customers = staffDataService['customers'] || [];
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === 'lead') {
-      const lead = leads.find((l: any) => l.id === selectedLeadId);
-      if (!lead && !selectedLeadId) return;
-      staffDataService.assignWork(staff.id, 'lead', { id: selectedLeadId, name: lead?.name || 'Assigned Lead', priority: leadPriority, dueDate: leadDueDate });
-    } else if (activeTab === 'customer') {
-      const cust = customers.find((c: any) => c.id === selectedCustomerId);
-      if (!cust && !selectedCustomerId) return;
-      staffDataService.assignWork(staff.id, 'customer', { id: selectedCustomerId, name: cust?.name || 'Assigned Customer', company: cust?.company });
-    } else if (activeTab === 'task') {
-      if (!taskTitle.trim()) return;
-      staffDataService.assignWork(staff.id, 'task', { title: taskTitle, description: taskDesc, priority: taskPriority, dueDate: taskDueDate, relatedName });
+    try {
+      if (activeTab === 'lead') {
+        if (!selectedLeadId) return;
+        await assignLeadMutation.mutateAsync(selectedLeadId);
+      } else if (activeTab === 'customer') {
+        if (!selectedCustomerId) return;
+        await assignCustomerMutation.mutateAsync(selectedCustomerId);
+      } else if (activeTab === 'task') {
+        if (!taskTitle.trim()) return;
+        await createTaskMutation.mutateAsync({
+          title: taskTitle,
+          description: taskDesc,
+          priority: taskPriority,
+          due_date: taskDueDate,
+          assigned_to: staff.id,
+          status: 'pending',
+        });
+        // Reset task form
+        setTaskTitle('');
+        setTaskDesc('');
+        setTaskPriority('medium');
+        setRelatedName('');
+      }
+      onAssigned();
+      onClose();
+    } catch {
+      // error handled silently
     }
-    onAssigned();
-    onClose();
   };
 
   return (
@@ -108,7 +175,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
                 <option value="">-- Choose a lead to reassign --</option>
                 {leads.map((lead: any) => (
                   <option key={lead.id} value={lead.id}>
-                    {lead.name} ({lead.status}) — currently assigned to {lead.assignedTo?.name || 'Unassigned'}
+                    {lead.name} ({lead.status})
                   </option>
                 ))}
               </select>
@@ -147,7 +214,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
               <option value="">-- Choose a customer to reassign --</option>
               {customers.map((cust: any) => (
                 <option key={cust.id} value={cust.id}>
-                  {cust.name} ({cust.company || 'No Company'}) — assigned to {cust.assignedTo?.name || 'Unassigned'}
+                  {cust.name} ({cust.company || 'No Company'})
                 </option>
               ))}
             </select>

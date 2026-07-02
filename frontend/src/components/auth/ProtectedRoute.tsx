@@ -2,7 +2,6 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import { staffDataService } from '../../services/staffDataService';
 
 interface ProtectedRouteProps {
   requireAdmin?: boolean;
@@ -20,11 +19,18 @@ export const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) =>
           setIsChecking(false);
           return;
         }
+
+        const now = Date.now();
+        const lastValidatedTime = useAuthStore.getState().lastValidated;
+        
+        // Only re-validate if > 5 minutes have passed
+        if (lastValidatedTime && now - lastValidatedTime < 5 * 60 * 1000) {
+          setIsChecking(false);
+          return;
+        }
+
         const response = await api.get('/auth/me');
         setUser(response.data);
-        if (response.data) {
-          staffDataService.syncWithBackendUsers([response.data]);
-        }
       } catch {
         await logout();
       } finally {

@@ -66,6 +66,7 @@ Migrations are in `supabase/migrations/` and should be applied in order:
 2. `002_auth_tokens.sql` – Refresh token revocation table
 3. `003_production_schema.sql` – `updated_at` triggers
 4. `004_rls_policies.sql` – Row-level security policies (defense-in-depth)
+5. `005_mvp_schema.sql` – Complete MVP schema with staff profiles and advanced metrics
 
 ## Project Structure
 

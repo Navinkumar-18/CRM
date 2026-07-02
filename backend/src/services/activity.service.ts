@@ -16,6 +16,7 @@ interface LogActivityParams {
 }
 
 export const logActivity = async (params: LogActivityParams) => {
+  // 1. Insert into main activities table
   const { error } = await supabase.from('activities').insert({
     type: params.type,
     user_id: params.userId,
@@ -31,5 +32,17 @@ export const logActivity = async (params: LogActivityParams) => {
 
   if (error) {
     logger.warn({ err: error, type: params.type }, 'Failed to log activity');
+  }
+
+  // 2. Insert into staff_activities table
+  const { error: staffError } = await supabase.from('staff_activities').insert({
+    staff_id: params.userId,
+    type: params.type,
+    description: params.description,
+    metadata: params.metadata || null,
+  });
+
+  if (staffError) {
+    logger.warn({ err: staffError, userId: params.userId }, 'Failed to log staff activity');
   }
 };

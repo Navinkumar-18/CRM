@@ -1,14 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/authStore';
-import { staffDataService } from '../../services/staffDataService';
+import { useState } from 'react';
+import { useCustomersApi } from '../../hooks/useApi';
 import type { Customer } from '../../types';
 import { Users, Search, Mail, Phone, MapPin, MessageSquare, Building2, AlertCircle } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Modal } from '../../components/ui/Modal';
 
 export const MyCustomers = () => {
-  const { user } = useAuthStore();
-  const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [sectorFilter, setSectorFilter] = useState('ALL');
 
@@ -17,25 +14,24 @@ export const MyCustomers = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [newNoteText, setNewNoteText] = useState('');
 
-  const loadCustomers = () => {
-    const emailOrId = user?.email || user?.id || 'staff@gmail.com';
-    const found = staffDataService.getStaffById(emailOrId) || staffDataService.getStaffList().find(s => s.role !== 'admin');
-    if (found) {
-      setCustomers(staffDataService.getStaffCustomers(found.id).concat(staffDataService.getStaffCustomers(found.email)));
-    }
-  };
+  const { useList, useUpdate } = useCustomersApi();
+  const { data: custData, isLoading } = useList({ page: 1, limit: 100, search: search || undefined, sector: sectorFilter !== 'ALL' ? sectorFilter : undefined });
+  const updateMutation = useUpdate();
 
-  useEffect(() => {
-    loadCustomers();
-  }, [user]);
+  const customers: Customer[] = (custData?.data as Customer[]) || [];
 
-  const handleAddNote = (e: React.FormEvent) => {
+  const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCustomer || !newNoteText.trim()) return;
-    staffDataService.addNote('customer', selectedCustomer.id, newNoteText.trim(), user);
-    setNewNoteText('');
-    setNoteModalOpen(false);
-    loadCustomers();
+    const existingNotes = selectedCustomer.notes || '';
+    const newNotes = `${existingNotes}\n[${new Date().toLocaleDateString()}] ${newNoteText.trim()}`.trim();
+    try {
+      await updateMutation.mutateAsync({ id: selectedCustomer.id, data: { notes: newNotes } as any });
+      setNewNoteText('');
+      setNoteModalOpen(false);
+    } catch {
+      // silent
+    }
   };
 
   const filteredCustomers = customers.filter((c) => {
@@ -43,8 +39,7 @@ export const MyCustomers = () => {
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       (c.company && c.company.toLowerCase().includes(search.toLowerCase())) ||
       (c.email || '').toLowerCase().includes(search.toLowerCase());
-    const matchesSector = sectorFilter === 'ALL' || c.sector === sectorFilter;
-    return matchesSearch && matchesSector;
+    return matchesSearch;
   });
 
   return (
@@ -100,7 +95,12 @@ export const MyCustomers = () => {
       </div>
 
       {/* Customers Grid */}
-      {filteredCustomers.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="text-sm text-slate-500 mt-3">Loading your customers...</p>
+        </div>
+      ) : filteredCustomers.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-slate-400">
           <AlertCircle className="w-10 h-10 mx-auto mb-3 text-slate-300" />
           <h3 className="text-base font-bold text-slate-700">No Customers Found</h3>

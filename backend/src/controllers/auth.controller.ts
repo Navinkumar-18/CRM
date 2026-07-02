@@ -12,6 +12,7 @@ import {
   resetPassword,
   updateMe as updateUserService,
 } from '../services/auth.service';
+import { supabase } from '../config/supabase';
 
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -178,6 +179,36 @@ export const resetPasswordHandler = async (
     res
       .status(200)
       .json({ success: true, message: 'Password reset successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Admin-only: immediately verify a user's email by email address.
+ * Called after admin creates a new staff account so they can log in without
+ * having to click a verification link.
+ */
+export const adminVerifyUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ success: false, message: 'email is required' });
+      return;
+    }
+    const { error } = await supabase
+      .from('users')
+      .update({ is_verified: true, verification_token: null })
+      .eq('email', email);
+    if (error) {
+      res.status(500).json({ success: false, message: 'Failed to verify user' });
+      return;
+    }
+    res.status(200).json({ success: true, message: `User ${email} has been verified and can now log in.` });
   } catch (error) {
     next(error);
   }

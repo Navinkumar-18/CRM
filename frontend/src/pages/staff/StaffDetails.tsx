@@ -1,16 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { staffDataService, type StaffMember } from '../../services/staffDataService';
-import type { Lead, Customer, Task, Activity } from '../../types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../../api/axios';
+import type { User, Lead, Customer, Task, Activity } from '../../types';
 import { AssignWorkModal } from './components/AssignWorkModal';
 import { StaffFormModal } from './components/StaffFormModal';
 import { 
   ArrowLeft, 
   Mail, 
-  Phone, 
   Briefcase, 
-  Building, 
-  Calendar, 
   Target, 
   Users, 
   CheckSquare, 
@@ -27,35 +25,110 @@ import { cn } from '../../utils/cn';
 export const StaffDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [staff, setStaff] = useState<StaffMember | null>(null);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'leads' | 'customers' | 'tasks' | 'activities'>('leads');
-  
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
 
   // Modals
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [formModalOpen, setFormModalOpen] = useState(false);
 
-  const loadData = () => {
-    if (!id) return;
-    const found = staffDataService.getStaffById(id);
-    if (!found) {
-      // Not found
-      return;
-    }
-    setStaff(found);
-    setLeads(staffDataService.getStaffLeads(found.id).concat(staffDataService.getStaffLeads(found.email)));
-    setCustomers(staffDataService.getStaffCustomers(found.id).concat(staffDataService.getStaffCustomers(found.email)));
-    setTasks(staffDataService.getStaffTasks(found.id).concat(staffDataService.getStaffTasks(found.email)));
-    setActivities(staffDataService.getStaffActivities(found.id).concat(staffDataService.getStaffActivities(found.email)));
-  };
+  // Fetch staff member from DB
+  const { data: staffData, isLoading: staffLoading } = useQuery({
+    queryKey: ['user', id],
+    queryFn: async () => {
+      const res = await api.get(`/users/${id}`);
+      return (res as any).data;
+    },
+    enabled: !!id,
+  });
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  const staff: User | null = staffData || null;
+
+  // Fetch leads assigned to this staff (admin sees all, filter client-side)
+  const { data: leadsData } = useQuery({
+    queryKey: ['staff-leads', id],
+    queryFn: async () => {
+      const res = await api.get('/leads?limit=100');
+      return (res as any).data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch customers assigned to this staff
+  const { data: custData } = useQuery({
+    queryKey: ['staff-customers', id],
+    queryFn: async () => {
+      const res = await api.get('/customers?limit=100');
+      return (res as any).data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch tasks assigned to this staff
+  const { data: taskData } = useQuery({
+    queryKey: ['staff-tasks', id],
+    queryFn: async () => {
+      const res = await api.get('/tasks?limit=100');
+      return (res as any).data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch activities
+  const { data: actData } = useQuery({
+    queryKey: ['staff-activities', id],
+    queryFn: async () => {
+      const res = await api.get(`/users/${id}/activities`);
+      return (res as any).data;
+    },
+    enabled: !!id,
+  });
+
+  // Filter data to only show items assigned to this staff member
+  const allLeads: Lead[] = (leadsData?.data || []) as Lead[];
+  const leads = allLeads.filter((l: any) => l.assignedTo === id || l.assignedTo?.id === id);
+
+  const allCustomers: Customer[] = (custData?.data || []) as Customer[];
+  const customers = allCustomers.filter((c: any) => c.assignedTo === id || c.assignedTo?.id === id);
+
+  const allTasks: Task[] = (taskData?.data || []) as Task[];
+  const tasks = allTasks.filter((t: any) => t.assignedTo === id || t.assignedTo?.id === id);
+
+  const activities: Activity[] = (actData || []) as Activity[];
+
+  // Mutations
+  const leadUpdateMutation = useMutation({
+    mutationFn: async ({ leadId, data }: { leadId: string; data: any }) => {
+      const res = await api.put(`/leads/${leadId}`, data);
+      return (res as any).data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff-leads', id] }),
+  });
+
+  const taskUpdateMutation = useMutation({
+    mutationFn: async ({ taskId, data }: { taskId: string; data: any }) => {
+      const res = await api.put(`/tasks/${taskId}`, data);
+      return (res as any).data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff-tasks', id] }),
+  });
+
+  const userUpdateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await api.put(`/users/${id}`, data);
+      return (res as any).data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user', id] }),
+  });
+
+  if (staffLoading) {
+    return (
+      <div className="p-12 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="text-sm text-slate-500 mt-3">Loading staff member...</p>
+      </div>
+    );
+  }
 
   if (!staff) {
     return (
@@ -70,24 +143,35 @@ export const StaffDetails = () => {
     );
   }
 
-  const handleUpdateStaff = (data: Partial<StaffMember>) => {
-    staffDataService.updateStaff(staff.id, data);
-    loadData();
+  const handleUpdateStaff = async (data: Partial<User>) => {
+    try {
+      const updatePayload: Record<string, any> = {};
+      if (data.name) updatePayload.name = data.name;
+      if (data.role) updatePayload.role = data.role;
+      if (data.phone !== undefined) updatePayload.phone = data.phone;
+      if (data.position !== undefined) updatePayload.position = data.position;
+      if (data.department !== undefined) updatePayload.department = data.department;
+      if (data.status !== undefined) updatePayload.status = data.status;
+      await userUpdateMutation.mutateAsync(updatePayload);
+    } catch {
+      // silent
+    }
   };
 
-  const handleToggleStatus = () => {
-    staffDataService.toggleStaffStatus(staff.id);
-    loadData();
+  const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
+    try {
+      await taskUpdateMutation.mutateAsync({ taskId, data: { status: newStatus } });
+    } catch {
+      // silent
+    }
   };
 
-  const handleTaskStatusChange = (taskId: string, newStatus: any) => {
-    staffDataService.updateTaskStatus(taskId, newStatus);
-    loadData();
-  };
-
-  const handleLeadStatusChange = (leadId: string, newStatus: any) => {
-    staffDataService.updateLeadStatus(leadId, newStatus);
-    loadData();
+  const handleLeadStatusChange = async (leadId: string, newStatus: string) => {
+    try {
+      await leadUpdateMutation.mutateAsync({ leadId, data: { status: newStatus } });
+    } catch {
+      // silent
+    }
   };
 
   return (
@@ -103,19 +187,6 @@ export const StaffDetails = () => {
         </Link>
 
         <div className="flex items-center space-x-3">
-          <button
-            onClick={handleToggleStatus}
-            className={cn(
-              "px-3.5 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-all border shadow-sm",
-              staff.status === 'active' 
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" 
-                : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200"
-            )}
-          >
-            <span className={cn("w-2 h-2 rounded-full", staff.status === 'active' ? "bg-emerald-500" : "bg-slate-400")}></span>
-            {staff.status === 'active' ? 'Active Employee' : 'Inactive Employee'}
-          </button>
-
           <button
             onClick={() => setFormModalOpen(true)}
             className="btn-secondary px-3.5 py-2 text-xs font-semibold flex items-center gap-1.5"
@@ -141,33 +212,25 @@ export const StaffDetails = () => {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
             <div className="relative">
-              <img 
-                src={staff.avatar} 
-                alt={staff.name} 
-                className="w-24 h-24 rounded-2xl object-cover border-2 border-white shadow-lg shrink-0"
-              />
-              <span className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-md bg-blue-600 text-white font-bold text-[10px] tracking-wider uppercase shadow">
-                {staff.employeeId}
-              </span>
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-3xl border-2 border-white shadow-lg shrink-0">
+                {staff.name?.charAt(0)?.toUpperCase() || '?'}
+              </div>
             </div>
 
             <div>
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{staff.name}</h1>
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold text-xs uppercase tracking-wider">
+                <span className={cn(
+                  "px-2.5 py-0.5 rounded-full font-bold text-xs uppercase tracking-wider",
+                  staff.role === 'admin' ? "bg-red-50 text-red-700" : "bg-indigo-50 text-indigo-700"
+                )}>
                   {staff.role}
                 </span>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mt-2">
                 <span className="flex items-center gap-1.5 font-medium text-slate-800">
-                  <Briefcase className="w-4 h-4 text-blue-500" /> {staff.position || 'Specialist'}
-                </span>
-                <span className="flex items-center gap-1.5 text-slate-500">
-                  <Building className="w-4 h-4 text-indigo-500" /> {staff.department} Department
-                </span>
-                <span className="flex items-center gap-1.5 text-slate-500">
-                  <Calendar className="w-4 h-4 text-slate-400" /> Joined {staff.joinedDate || '2024'}
+                  <Briefcase className="w-4 h-4 text-blue-500" /> {staff.role === 'admin' ? 'Administrator' : 'Staff Employee'}
                 </span>
               </div>
 
@@ -175,23 +238,17 @@ export const StaffDetails = () => {
                 <a href={`mailto:${staff.email}`} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
                   <Mail className="w-3.5 h-3.5 text-slate-400" /> {staff.email}
                 </a>
-                <a href={`tel:${staff.phone}`} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" /> {staff.phone}
-                </a>
               </div>
             </div>
           </div>
 
-          {/* Performance Box */}
+          {/* Workload Summary Box */}
           <div className="w-full md:w-auto bg-slate-50/80 rounded-2xl p-4 border border-slate-200/80 flex md:flex-col justify-between md:items-end gap-2 shrink-0">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Overall KPI Rating</p>
-              <div className="text-2xl font-extrabold text-slate-900 mt-0.5">{staff.performance || 85}%</div>
-            </div>
-            <div className="text-right">
-              <span className="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                Top Quartile Performer
-              </span>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Workload Summary</p>
+              <div className="text-sm font-bold text-slate-900 mt-1">
+                {leads.length} Leads · {customers.length} Customers · {tasks.length} Tasks
+              </div>
             </div>
           </div>
         </div>
@@ -339,11 +396,6 @@ export const StaffDetails = () => {
                             {cust.status}
                           </span>
                         </div>
-                        {cust.address && (
-                          <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                            📍 {cust.address}
-                          </p>
-                        )}
                         {cust.notes && (
                           <p className="text-xs text-slate-600 mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100 italic">
                             "{cust.notes}"
@@ -479,7 +531,11 @@ export const StaffDetails = () => {
         open={assignModalOpen}
         onClose={() => setAssignModalOpen(false)}
         staff={staff}
-        onAssigned={() => loadData()}
+        onAssigned={() => {
+          queryClient.invalidateQueries({ queryKey: ['staff-leads', id] });
+          queryClient.invalidateQueries({ queryKey: ['staff-customers', id] });
+          queryClient.invalidateQueries({ queryKey: ['staff-tasks', id] });
+        }}
       />
     </div>
   );

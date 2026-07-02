@@ -96,19 +96,13 @@ export const registerUser = async (
     .insert({
       id: crypto.randomUUID(),
       email,
-      password: passwordHash,
+      password_hash: passwordHash,
       name,
       is_verified: false,
       verification_token: tokenHash,
     })
     .select('*')
     .single();
-
-  if (user) {
-    user.role =
-      user.role ||
-      (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
-  }
 
   if (error || !user) {
     logger.error({ err: error }, 'User registration failed');
@@ -144,7 +138,7 @@ export const loginUser = async (email: string, password: string) => {
     throw new UnauthorizedError('Invalid credentials');
   }
 
-  const storedHash = user.password_hash || user.password;
+  const storedHash = user.password_hash;
   if (!storedHash) {
     await bcrypt.compare(password, dummyHash).catch(() => {});
     throw new UnauthorizedError('Invalid credentials');
@@ -178,9 +172,7 @@ export const loginUser = async (email: string, password: string) => {
 
   logger.info({ userId: user.id, email: user.email }, 'User logged in');
 
-  const role =
-    user.role ||
-    (user.email === 'nerupunavin450@gmail.com' ? 'admin' : 'employee');
+  const role = user.role || 'employee';
 
   return {
     user: {
@@ -272,7 +264,7 @@ export const refreshTokens = async (oldRefreshToken: string) => {
     expires_at: expiresAt,
   });
 
-  const role = (user as any).role || 'employee';
+  const role = user.role || 'employee';
 
   return {
     accessToken: newAccessToken,
@@ -304,7 +296,7 @@ export const getMe = async (userId: string) => {
 
   return {
     ...user,
-    role: (user as any).role || 'employee',
+    role: user.role || 'employee',
   };
 };
 
@@ -461,6 +453,6 @@ export const updateMe = async (
 
   return {
     ...user,
-    role: (user as any).role || 'employee',
+    role: user.role || 'employee',
   };
 };

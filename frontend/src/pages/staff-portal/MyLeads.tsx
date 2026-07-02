@@ -1,14 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/authStore';
-import { staffDataService } from '../../services/staffDataService';
+import { useState } from 'react';
+import { useLeadsApi } from '../../hooks/useApi';
 import type { Lead } from '../../types';
 import { Target, Search, Mail, Phone, MessageSquare, AlertCircle } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Modal } from '../../components/ui/Modal';
 
 export const MyLeads = () => {
-  const { user } = useAuthStore();
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
@@ -17,30 +14,32 @@ export const MyLeads = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [newNoteText, setNewNoteText] = useState('');
 
-  const loadLeads = () => {
-    const emailOrId = user?.email || user?.id || 'staff@gmail.com';
-    const found = staffDataService.getStaffById(emailOrId) || staffDataService.getStaffList().find(s => s.role !== 'admin');
-    if (found) {
-      setLeads(staffDataService.getStaffLeads(found.id).concat(staffDataService.getStaffLeads(found.email)));
+  const { useList, useUpdate } = useLeadsApi();
+  const { data: leadsData, isLoading } = useList({ page: 1, limit: 100, search: search || undefined });
+  const updateMutation = useUpdate();
+
+  const leads: Lead[] = (leadsData?.data as Lead[]) || [];
+
+  const handleStatusChange = async (leadId: string, status: string) => {
+    try {
+      await updateMutation.mutateAsync({ id: leadId, data: { status } as any });
+    } catch {
+      // silent
     }
   };
 
-  useEffect(() => {
-    loadLeads();
-  }, [user]);
-
-  const handleStatusChange = (leadId: string, status: any) => {
-    staffDataService.updateLeadStatus(leadId, status, user);
-    loadLeads();
-  };
-
-  const handleAddNote = (e: React.FormEvent) => {
+  const handleAddNote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedLead || !newNoteText.trim()) return;
-    staffDataService.addNote('lead', selectedLead.id, newNoteText.trim(), user);
-    setNewNoteText('');
-    setNoteModalOpen(false);
-    loadLeads();
+    const existingNotes = selectedLead.notes || '';
+    const newNotes = `${existingNotes}\n[${new Date().toLocaleDateString()}] ${newNoteText.trim()}`.trim();
+    try {
+      await updateMutation.mutateAsync({ id: selectedLead.id, data: { notes: newNotes } as any });
+      setNewNoteText('');
+      setNoteModalOpen(false);
+    } catch {
+      // silent
+    }
   };
 
   const filteredLeads = leads.filter((l) => {
@@ -113,7 +112,12 @@ export const MyLeads = () => {
       </div>
 
       {/* Leads Grid */}
-      {filteredLeads.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-sm text-slate-500 mt-3">Loading your leads...</p>
+        </div>
+      ) : filteredLeads.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-slate-400">
           <AlertCircle className="w-10 h-10 mx-auto mb-3 text-slate-300" />
           <h3 className="text-base font-bold text-slate-700">No Leads Found</h3>

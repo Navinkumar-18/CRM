@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { list, create, update, remove } from '../controllers/user.controller';
+import { list, getById, create, update, remove, getUserActivities } from '../controllers/user.controller';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roles';
 import { validate } from '../middleware/validate';
@@ -13,6 +13,8 @@ router.use(protect);
 router.use(authorize('admin'));
 
 router.get('/', list);
+router.get('/:id', validateUUID('id'), getById);
+router.get('/:id/activities', validateUUID('id'), getUserActivities);
 router.post('/', validate(createUserSchema), create);
 router.put('/:id', validateUUID('id'), validate(updateUserSchema), update);
 router.delete('/:id', validateUUID('id'), remove);

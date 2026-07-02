@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { staffDataService, type StaffMember } from '../../services/staffDataService';
-import type { Lead, Customer, Task, Activity } from '../../types';
+import { useLeadsApi, useCustomersApi, useTasksApi } from '../../hooks/useApi';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../api/axios';
+import type { Lead, Task, Activity } from '../../types';
 import { 
   Target, 
   Users, 
@@ -19,37 +21,45 @@ import { cn } from '../../utils/cn';
 
 export const StaffDashboard = () => {
   const { user } = useAuthStore();
-  const [staffProfile, setStaffProfile] = useState<StaffMember | null>(null);
-  const [myLeads, setMyLeads] = useState<Lead[]>([]);
-  const [myCustomers, setMyCustomers] = useState<Customer[]>([]);
-  const [myTasks, setMyTasks] = useState<Task[]>([]);
-  const [myActivities, setMyActivities] = useState<Activity[]>([]);
   const [celebrateTaskId, setCelebrateTaskId] = useState<string | null>(null);
 
-  const loadData = () => {
-    const emailOrId = user?.email || user?.id || 'staff@gmail.com';
-    const found = staffDataService.getStaffById(emailOrId) || staffDataService.getStaffList().find(s => s.role !== 'admin');
-    if (found) {
-      setStaffProfile(found);
-      setMyLeads(staffDataService.getStaffLeads(found.id).concat(staffDataService.getStaffLeads(found.email)));
-      setMyCustomers(staffDataService.getStaffCustomers(found.id).concat(staffDataService.getStaffCustomers(found.email)));
-      setMyTasks(staffDataService.getStaffTasks(found.id).concat(staffDataService.getStaffTasks(found.email)));
-      setMyActivities(staffDataService.getStaffActivities(found.id).concat(staffDataService.getStaffActivities(found.email)));
-    }
-  };
+  // Real API hooks — backend auto-scopes to assigned_to = current user for non-admin
+  const { useList: useLeadsList } = useLeadsApi();
+  const { useList: useCustomersList } = useCustomersApi();
+  const { useList: useTasksList, useUpdate: useTaskUpdate } = useTasksApi();
 
-  useEffect(() => {
-    loadData();
-  }, [user]);
+  const { data: leadsData, isLoading: leadsLoading } = useLeadsList({ page: 1, limit: 100 });
+  const { data: custData, isLoading: custLoading } = useCustomersList({ page: 1, limit: 100 });
+  const { data: taskData, isLoading: tasksLoading } = useTasksList({ page: 1, limit: 100 });
+  const updateTaskMutation = useTaskUpdate();
 
-  const handleCompleteTask = (task: Task) => {
+  // Activities from the real API
+  const { data: activitiesData } = useQuery({
+    queryKey: ['my-activities'],
+    queryFn: async () => {
+      const response = await api.get('/activities?limit=10');
+      return (response as any).data;
+    },
+  });
+
+  const myLeads: Lead[] = (leadsData?.data as Lead[]) || [];
+  const myCustomers = (custData?.data as any[]) || [];
+  const myTasks: Task[] = (taskData?.data as Task[]) || [];
+  const myActivities: Activity[] = activitiesData || [];
+
+  const isLoading = leadsLoading || custLoading || tasksLoading;
+
+  const handleCompleteTask = async (task: Task) => {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed';
     if (newStatus === 'completed') {
       setCelebrateTaskId(task.id);
       setTimeout(() => setCelebrateTaskId(null), 1500);
     }
-    staffDataService.updateTaskStatus(task.id, newStatus, user);
-    loadData();
+    try {
+      await updateTaskMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
+    } catch {
+      // silent
+    }
   };
 
   const pendingTasks = myTasks.filter(t => t.status !== 'completed');
@@ -69,7 +79,7 @@ export const StaffDashboard = () => {
               Staff Employee Portal
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Welcome back, {user?.name || staffProfile?.name || 'Valued Team Member'}! 🚀
+              Welcome back, {user?.name || 'Valued Team Member'}! 🚀
             </h1>
             <p className="text-blue-100 text-sm mt-1 max-w-2xl">
               Here is your daily CRM workspace. Monitor your assigned leads, update account notes, and check off high-priority action items.
@@ -78,8 +88,8 @@ export const StaffDashboard = () => {
 
           <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center space-x-4 shrink-0">
             <div className="text-right">
-              <p className="text-[10px] uppercase font-bold text-blue-200">Your KPI Score</p>
-              <div className="text-2xl font-extrabold">{staffProfile?.performance || 91}%</div>
+              <p className="text-[10px] uppercase font-bold text-blue-200">Completed Tasks</p>
+              <div className="text-2xl font-extrabold">{completedTasksCount}</div>
             </div>
             <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center font-bold text-lg">
               📈
@@ -175,7 +185,12 @@ export const StaffDashboard = () => {
               </Link>
             </div>
 
-            {pendingTasks.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+                <p className="text-sm text-slate-500 mt-3">Loading tasks...</p>
+              </div>
+            ) : pendingTasks.length === 0 ? (
               <div className="text-center py-10">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2 animate-bounce" />
                 <h4 className="font-bold text-slate-800">All caught up! 🎉</h4>
@@ -247,7 +262,12 @@ export const StaffDashboard = () => {
               </Link>
             </div>
 
-            {myLeads.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-slate-500 mt-3">Loading leads...</p>
+              </div>
+            ) : myLeads.length === 0 ? (
               <div className="text-center py-10 text-slate-400">
                 <Target className="w-12 h-12 text-slate-300 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slate-600">No leads assigned to you yet</p>

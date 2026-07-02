@@ -39,6 +39,7 @@ export const createCustomer = async (
     status: body.status || 'prospect',
     sector: body.sector || 'general',
     notes: body.notes || null,
+    assigned_to: body.assignedTo || user.id,
   })) as Record<string, string>;
 
   void logActivity({
@@ -74,7 +75,9 @@ export const updateCustomer = async (
     }
   }
 
-  // Removed assignedTo logic due to missing column in DB schema
+  if (body.assignedTo !== undefined) {
+    updateData['assigned_to'] = body.assignedTo;
+  }
 
   const data = (await customerRepository.update(
     id,

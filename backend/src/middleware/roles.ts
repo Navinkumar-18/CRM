@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUser } from '../types/database';
 import { UserRole } from '../types/database';
 
 export const authorize = (...roles: UserRole[]) => {

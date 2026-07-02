@@ -1,37 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../store/authStore';
-import { staffDataService } from '../../services/staffDataService';
+import { useState } from 'react';
+import { useTasksApi } from '../../hooks/useApi';
 import type { Task } from '../../types';
 import { CheckSquare, Search, CheckCircle2, AlertCircle, Sparkles, Check, Calendar } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 export const MyTasks = () => {
-  const { user } = useAuthStore();
-  const [tasks, setTasks] = useState<Task[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [priorityFilter, setPriorityFilter] = useState('ALL');
   const [celebrateTaskId, setCelebrateTaskId] = useState<string | null>(null);
 
-  const loadTasks = () => {
-    const emailOrId = user?.email || user?.id || 'staff@gmail.com';
-    const found = staffDataService.getStaffById(emailOrId) || staffDataService.getStaffList().find(s => s.role !== 'admin');
-    if (found) {
-      setTasks(staffDataService.getStaffTasks(found.id).concat(staffDataService.getStaffTasks(found.email)));
-    }
-  };
+  const { useList, useUpdate } = useTasksApi();
+  const { data: taskData, isLoading } = useList({ page: 1, limit: 100 });
+  const updateMutation = useUpdate();
 
-  useEffect(() => {
-    loadTasks();
-  }, [user]);
+  const tasks: Task[] = (taskData?.data as Task[]) || [];
 
-  const handleStatusChange = (task: Task, newStatus: any) => {
+  const handleStatusChange = async (task: Task, newStatus: string) => {
     if (newStatus === 'completed' && task.status !== 'completed') {
       setCelebrateTaskId(task.id);
       setTimeout(() => setCelebrateTaskId(null), 1500);
     }
-    staffDataService.updateTaskStatus(task.id, newStatus, user);
-    loadTasks();
+    try {
+      await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
+    } catch {
+      // silent
+    }
   };
 
   const filteredTasks = tasks.filter((t) => {
@@ -118,7 +112,12 @@ export const MyTasks = () => {
       </div>
 
       {/* Tasks List */}
-      {filteredTasks.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="text-sm text-slate-500 mt-3">Loading your tasks...</p>
+        </div>
+      ) : filteredTasks.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-slate-400">
           <AlertCircle className="w-10 h-10 mx-auto mb-3 text-slate-300" />
           <h3 className="text-base font-bold text-slate-700">No Tasks Match Filter</h3>

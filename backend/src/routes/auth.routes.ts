@@ -9,8 +9,10 @@ import {
   verifyEmailHandler,
   forgotPassword,
   resetPasswordHandler,
+  adminVerifyUser,
 } from '../controllers/auth.controller';
 import { protect } from '../middleware/auth';
+import { authorize } from '../middleware/roles';
 import { validate } from '../middleware/validate';
 import {
   authSlowDown,
@@ -28,7 +30,7 @@ import {
 const router = Router();
 
 // Public auth routes — all validated via Zod schema middleware
-router.post('/register', validate(registerSchema), register);
+router.post('/register', authLimiter, validate(registerSchema), register);
 
 router.post(
   '/login',
@@ -44,6 +46,9 @@ router.post('/logout', logout);
 
 router.get('/me', protect, me);
 router.put('/me', protect, validate(updateProfileSchema), updateMe);
+
+// Admin-only: auto-verify a newly created staff user so they can log in immediately
+router.patch('/admin/verify-user', protect, authorize('admin'), adminVerifyUser);
 
 // Email verification — no auth or rate limit needed (token is the proof)
 router.post('/verify-email/:token', verifyEmailHandler);

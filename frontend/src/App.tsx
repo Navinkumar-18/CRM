@@ -14,7 +14,6 @@ import { Contacts } from './pages/contacts/Contacts';
 import { Deals } from './pages/deals/Deals';
 import { CustomModules } from './pages/custom/CustomModules';
 
-import { Register } from './pages/auth/Register';
 import { Profile } from './pages/auth/Profile';
 import { useAuthStore } from './store/authStore';
 
@@ -51,7 +50,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
           
           {/* General / Shared & Staff Portal Routes */}
           <Route element={<ProtectedRoute />}>

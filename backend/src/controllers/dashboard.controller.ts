@@ -14,7 +14,7 @@ export const getMetrics = async (
 ): Promise<void> => {
   try {
     const summary = await getDashboardSummary(req.user!);
-    res.json({ success: true, data: summary });
+    res.json({ success: true, data: toCamelCase(summary) });
   } catch (error) {
     next(error);
   }
@@ -27,7 +27,7 @@ export const getPipeline = async (
 ): Promise<void> => {
   try {
     const pipeline = await getPipelineRevenue(req.user!);
-    res.json({ success: true, data: pipeline });
+    res.json({ success: true, data: toCamelCase(pipeline) });
   } catch (error) {
     next(error);
   }
@@ -54,7 +54,7 @@ export const getFunnel = async (
 ): Promise<void> => {
   try {
     const funnel = await getLeadFunnel(req.user!);
-    res.json({ success: true, data: funnel });
+    res.json({ success: true, data: toCamelCase(funnel) });
   } catch (error) {
     next(error);
   }

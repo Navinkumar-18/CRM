@@ -61,7 +61,13 @@ export const getDashboardSummary = async (user: AuthUser) => {
       return q;
     })(),
     // Total companies
-    supabase.from('companies').select('id', { count: 'exact', head: true }),
+    (() => {
+      let q = supabase
+        .from('companies')
+        .select('id', { count: 'exact', head: true });
+      if (scopeId) q = q.eq('owner_id', scopeId);
+      return q;
+    })(),
     // Total customers
     (() => {
       let q = supabase

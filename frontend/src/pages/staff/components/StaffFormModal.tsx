@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '../../../components/ui/Modal';
-import type { StaffMember } from '../../../services/staffDataService';
+import type { User } from '../../../types';
 import { Shield, Mail, Phone, Briefcase, Building, Lock } from 'lucide-react';
 
 interface StaffFormModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: Partial<StaffMember>, isEdit: boolean) => void;
-  initialData?: StaffMember | null;
+  onSave: (data: Partial<User>, isEdit: boolean) => void;
+  initialData?: User | null;
 }
 
-const emptyForm: Partial<StaffMember> & { password?: string } = {
+const emptyForm: Partial<User> & { password?: string } = {
   name: '',
   email: '',
   phone: '',
@@ -161,9 +161,10 @@ export const StaffFormModal = ({ open, onClose, onSave, initialData }: StaffForm
               onChange={(e) => setForm({ ...form, role: e.target.value as any })}
               className="input-field"
             >
-              <option value="staff">Staff (Standard employee access)</option>
+              <option value="admin">Admin (Full system & staff management access)</option>
+              <option value="manager">Manager (Team visibility access)</option>
               <option value="employee">Employee (Sales & tasks access)</option>
-              <option value="manager">Manager (Team visibility)</option>
+              <option value="staff">Staff (Standard employee access)</option>
             </select>
           </div>
 
