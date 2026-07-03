@@ -68,8 +68,8 @@ export const Tasks = () => {
         await createMutation.mutateAsync(payload);
       }
       setModalOpen(false);
-    } catch {
-      setFormError('Failed to save task');
+    } catch (err: any) {
+      setFormError(err?.response?.data?.message || err?.message || 'Failed to save task');
     } finally {
       setSaving(false);
     }
@@ -80,7 +80,9 @@ export const Tasks = () => {
     const newStatus = task.status === 'completed' ? 'pending' : 'completed';
     try {
       await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
-    } catch { /* silent */ }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to update task');
+    }
   };
 
   const handleDelete = async () => {
@@ -88,7 +90,9 @@ export const Tasks = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch { /* silent */ }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete task');
+    }
   };
 
   return (

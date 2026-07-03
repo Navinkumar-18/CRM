@@ -71,7 +71,7 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const company = await getCompanyById(req.params.id as string);
+    const company = await getCompanyById(req.user!, req.params.id as string);
     if (!company) {
       res.status(404).json({ success: false, message: 'Company not found' });
       return;

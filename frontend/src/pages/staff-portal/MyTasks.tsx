@@ -23,8 +23,8 @@ export const MyTasks = () => {
     }
     try {
       await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
-    } catch {
-      // silent
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to update task status');
     }
   };
 

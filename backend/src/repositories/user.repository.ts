@@ -53,7 +53,11 @@ class UserRepository {
       .eq('id', id)
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    if (!data) return null;
     const u: any = data;
     const staff = Array.isArray(u.staffs) ? u.staffs[0] : u.staffs;
     return {

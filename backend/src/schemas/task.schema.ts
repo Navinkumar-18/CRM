@@ -13,7 +13,7 @@ export const createTaskSchema = z
     description: z.string().max(2000).optional().or(z.literal('')),
     status: taskStatus,
     priority: taskPriority,
-    dueDate: z.string().datetime({ offset: true }).optional().nullable(),
+    dueDate: z.string().optional().nullable(),
     assignedTo: z.string().uuid('assignedTo must be a valid UUID').optional(),
     customerId: z
       .string()
@@ -29,7 +29,7 @@ export const updateTaskSchema = z
     description: z.string().max(2000).optional().or(z.literal('')),
     status: taskStatus,
     priority: taskPriority,
-    dueDate: z.string().datetime({ offset: true }).optional().nullable(),
+    dueDate: z.string().optional().nullable(),
     assignedTo: z.string().uuid('assignedTo must be a valid UUID').optional(),
     customerId: z
       .string()

@@ -36,8 +36,8 @@ export const getDeals = async (
   );
 };
 
-export const getDealById = async (id: string) => {
-  return dealRepository.findById(id);
+export const getDealById = async (user: AuthUser, id: string) => {
+  return dealRepository.findByIdScoped(id, user);
 };
 
 export const getPipelineSummary = async (user: AuthUser) => {

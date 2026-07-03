@@ -46,6 +46,21 @@ export const passwordResetLimiter = rateLimit({
 });
 
 /**
+ * Limiter for email verification — prevents token brute-forcing.
+ * 5 attempts per 15 minutes per IP.
+ */
+export const verificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: {
+    success: false,
+    message: 'Too many verification attempts, please try again later',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
  * General API limiter — applied to all /api/* routes.
  */
 export const apiLimiter = rateLimit({

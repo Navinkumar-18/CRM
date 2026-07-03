@@ -2,7 +2,7 @@ import { BaseRepository } from './base.repository';
 
 export class ContactRepository extends BaseRepository {
   constructor() {
-    super('contacts');
+    super('contacts', 'owner_id');
   }
 }
 

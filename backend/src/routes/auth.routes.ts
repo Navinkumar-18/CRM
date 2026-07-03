@@ -18,6 +18,7 @@ import {
   authSlowDown,
   authLimiter,
   passwordResetLimiter,
+  verificationLimiter,
 } from '../middleware/rateLimiter';
 import {
   registerSchema,
@@ -51,7 +52,7 @@ router.put('/me', protect, validate(updateProfileSchema), updateMe);
 router.patch('/admin/verify-user', protect, authorize('admin'), adminVerifyUser);
 
 // Email verification — no auth or rate limit needed (token is the proof)
-router.post('/verify-email/:token', verifyEmailHandler);
+router.post('/verify-email/:token', verificationLimiter, verifyEmailHandler);
 
 // Password reset — strict rate limits
 router.post(

@@ -39,6 +39,7 @@ export interface User {
   assignedCustomersCount?: number;
   pendingTasksCount?: number;
   completedTasksCount?: number;
+  created_at?: string;
 }
 
 export interface Customer {

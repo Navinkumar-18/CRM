@@ -20,6 +20,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 export const StaffManagement = () => {
   const navigate = useNavigate();
@@ -32,8 +33,10 @@ export const StaffManagement = () => {
   const [editingStaff, setEditingStaff] = useState<User | null>(null);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [assigningStaff, setAssigningStaff] = useState<User | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
+
 
   // Fetch real users from database
   const { data: usersData, isLoading } = useQuery({
@@ -110,17 +113,22 @@ export const StaffManagement = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string, e: React.MouseEvent) => {
+  const handleDeleteClick = (user: User, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`Are you sure you want to delete staff member "${name}"? This action is permanent.`)) {
-      try {
-        await deleteMutation.mutateAsync(id);
-        setApiSuccess(`Staff member "${name}" deleted successfully.`);
-        setTimeout(() => setApiSuccess(null), 6000);
-      } catch (err: any) {
-        const msg = err.response?.data?.message || 'Failed to delete staff member.';
-        setApiError(msg);
-      }
+    setDeleteTarget(user);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteMutation.mutateAsync(deleteTarget.id);
+      setApiSuccess(`Staff member "${deleteTarget.name}" deleted successfully.`);
+      setTimeout(() => setApiSuccess(null), 6000);
+      setDeleteTarget(null);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to delete staff member.';
+      setApiError(msg);
+      setDeleteTarget(null);
     }
   };
 
@@ -322,7 +330,7 @@ export const StaffManagement = () => {
                     </td>
 
                     <td className="py-4 px-4 text-center text-xs text-slate-500">
-                      {s.joinedDate ? new Date(s.joinedDate).toLocaleDateString() : '—'}
+                      {s.created_at ? new Date(s.created_at).toLocaleDateString() : '—'}
                     </td>
 
                     <td className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
@@ -362,7 +370,7 @@ export const StaffManagement = () => {
 
                         {s.role !== 'admin' && (
                           <button
-                            onClick={(e) => handleDelete(s.id, s.name, e)}
+                            onClick={(e) => handleDeleteClick(s, e)}
                             title="Delete Account"
                             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           >
@@ -392,6 +400,14 @@ export const StaffManagement = () => {
         onClose={() => setAssignModalOpen(false)}
         staff={assigningStaff}
         onAssigned={() => queryClient.invalidateQueries({ queryKey: ['users'] })}
+      />
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+        title="Delete Staff Member"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? This action is permanent and cannot be undone.`}
       />
     </div>
   );

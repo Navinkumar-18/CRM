@@ -26,8 +26,8 @@ export const getCompanies = async (
   );
 };
 
-export const getCompanyById = async (id: string) => {
-  return companyRepository.findById(id);
+export const getCompanyById = async (user: AuthUser, id: string) => {
+  return companyRepository.findByIdScoped(id, user);
 };
 
 export const createCompany = async (

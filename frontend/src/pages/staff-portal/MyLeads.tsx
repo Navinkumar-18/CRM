@@ -23,8 +23,8 @@ export const MyLeads = () => {
   const handleStatusChange = async (leadId: string, status: string) => {
     try {
       await updateMutation.mutateAsync({ id: leadId, data: { status } as any });
-    } catch {
-      // silent
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to update lead status');
     }
   };
 
@@ -37,8 +37,8 @@ export const MyLeads = () => {
       await updateMutation.mutateAsync({ id: selectedLead.id, data: { notes: newNotes } as any });
       setNewNoteText('');
       setNoteModalOpen(false);
-    } catch {
-      // silent
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to add note');
     }
   };
 

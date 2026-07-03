@@ -26,8 +26,8 @@ export const getContacts = async (
   );
 };
 
-export const getContactById = async (id: string) => {
-  return contactRepository.findById(id);
+export const getContactById = async (user: AuthUser, id: string) => {
+  return contactRepository.findByIdScoped(id, user);
 };
 
 export const createContact = async (
@@ -48,7 +48,7 @@ export const createContact = async (
   void logActivity({
     type: 'contact_created',
     userId: user.id,
-    description: `Created contact "${body.first_name} ${body.last_name ?? ''}".trim()`,
+    description: `Created contact "${(body.first_name + ' ' + (body.last_name ?? '')).trim()}"`,
     contactId: data.id,
   });
 

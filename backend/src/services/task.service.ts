@@ -3,7 +3,7 @@ import { AuthUser } from '../types/database';
 import { logActivity } from './activity.service';
 import { CreateTaskInput, UpdateTaskInput } from '../schemas/task.schema';
 import { supabase } from '../config/supabase';
-import { applyOwnershipScope } from '../utils/access';
+import { applyOwnershipScope, resolveAssignedTo } from '../utils/access';
 
 export const getTasks = async (
   user: AuthUser,
@@ -71,6 +71,7 @@ export const createTask = async (user: AuthUser, body: CreateTaskInput) => {
     status: body.status || 'pending',
     priority: body.priority || 'medium',
     due_date: body.dueDate || null,
+    assigned_to: resolveAssignedTo(body.assignedTo, user),
     customer_id: body.customerId || null,
   })) as Record<string, string>;
 
@@ -100,7 +101,9 @@ export const updateTask = async (
   }
 
   if (body.dueDate !== undefined) updateData.due_date = body.dueDate;
-  // Removed assignedTo logic due to missing column in DB schema
+  if (body.assignedTo !== undefined) {
+    updateData.assigned_to = body.assignedTo;
+  }
   if (body.customerId !== undefined) {
     updateData.customer_id = body.customerId;
   }
@@ -110,10 +113,11 @@ export const updateTask = async (
     string
   >;
 
+  const isCompletion = body.status === 'completed';
   void logActivity({
-    type: 'task_assigned',
+    type: isCompletion ? 'task_completed' : 'task_assigned',
     userId: user.id,
-    description: `Updated task "${data.title}"`,
+    description: isCompletion ? `Completed task "${data.title}"` : `Updated task "${data.title}"`,
     taskId: data.id,
   });
 

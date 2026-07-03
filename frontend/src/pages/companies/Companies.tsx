@@ -128,7 +128,9 @@ export const Companies = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch { /* silent for MVP */ }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete company');
+    }
   };
 
   const selectedCompany = (data?.data as Company[])?.find(c => c.id === selectedCompanyForDrawer?.id) || selectedCompanyForDrawer;

@@ -50,7 +50,7 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const deal = await getDealById(req.params.id as string);
+    const deal = await getDealById(req.user!, req.params.id as string);
     if (!deal) {
       res.status(404).json({ success: false, message: 'Deal not found' });
       return;

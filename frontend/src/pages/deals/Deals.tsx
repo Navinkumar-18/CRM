@@ -24,9 +24,9 @@ const emptyDeal = {
 
 const STAGE_PROBABILITIES: Record<string, number> = {
   prospecting: 10,
-  qualification: 20,
+  qualification: 25,
   proposal: 50,
-  negotiation: 80,
+  negotiation: 75,
   closed_won: 100,
   closed_lost: 0,
 };
@@ -102,7 +102,9 @@ export const Deals = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch { /* silent */ }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete deal');
+    }
   };
 
   const handleDrop = async (e: React.DragEvent, stageValue: Deal['stage']) => {

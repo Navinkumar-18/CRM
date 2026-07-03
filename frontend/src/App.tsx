@@ -44,43 +44,48 @@ const RoleBasedDashboard = () => {
   return <StaffDashboard />;
 };
 
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Navigate to="/login" replace />} />
-          
-          {/* General / Shared & Staff Portal Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<AppLayout><RoleBasedDashboard /></AppLayout>} />
-            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-            <Route path="/my-leads" element={<AppLayout><MyLeads /></AppLayout>} />
-            <Route path="/my-customers" element={<AppLayout><MyCustomers /></AppLayout>} />
-            <Route path="/my-tasks" element={<AppLayout><MyTasks /></AppLayout>} />
-          </Route>
-          
-          {/* Admin-Only Routes */}
-          <Route element={<ProtectedRoute requireAdmin />}>
-            <Route path="/staff" element={<AppLayout><StaffManagement /></AppLayout>} />
-            <Route path="/staff/:id" element={<AppLayout><StaffDetails /></AppLayout>} />
-            <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
-            <Route path="/companies" element={<AppLayout><Companies /></AppLayout>} />
-            <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
-            <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />
-            <Route path="/deals" element={<AppLayout><Deals /></AppLayout>} />
-            <Route path="/tasks" element={<AppLayout><Tasks /></AppLayout>} />
-            <Route path="/activities" element={<AppLayout><Activities /></AppLayout>} />
-            <Route path="/custom-modules" element={<AppLayout><CustomModules /></AppLayout>} />
-          </Route>
-          
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Navigate to="/login" replace />} />
+            
+            {/* General / Shared & Staff Portal Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<AppLayout><RoleBasedDashboard /></AppLayout>} />
+              <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+              <Route path="/my-leads" element={<AppLayout><MyLeads /></AppLayout>} />
+              <Route path="/my-customers" element={<AppLayout><MyCustomers /></AppLayout>} />
+              <Route path="/my-tasks" element={<AppLayout><MyTasks /></AppLayout>} />
+            </Route>
+            
+            {/* Admin-Only Routes */}
+            <Route element={<ProtectedRoute requireAdmin />}>
+              <Route path="/staff" element={<AppLayout><StaffManagement /></AppLayout>} />
+              <Route path="/staff/:id" element={<AppLayout><StaffDetails /></AppLayout>} />
+              <Route path="/customers" element={<AppLayout><Customers /></AppLayout>} />
+              <Route path="/companies" element={<AppLayout><Companies /></AppLayout>} />
+              <Route path="/contacts" element={<AppLayout><Contacts /></AppLayout>} />
+              <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />
+              <Route path="/deals" element={<AppLayout><Deals /></AppLayout>} />
+              <Route path="/tasks" element={<AppLayout><Tasks /></AppLayout>} />
+              <Route path="/activities" element={<AppLayout><Activities /></AppLayout>} />
+              <Route path="/custom-modules" element={<AppLayout><CustomModules /></AppLayout>} />
+            </Route>
+            
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
 export default App;
+
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../api/axios';
 import { Modal } from '../../../components/ui/Modal';
@@ -16,11 +16,10 @@ interface AssignWorkModalProps {
 export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWorkModalProps) => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'lead' | 'customer' | 'task'>('lead');
+  const [errorMsg, setErrorMsg] = useState('');
   
   // Lead form
   const [selectedLeadId, setSelectedLeadId] = useState('');
-  const [leadPriority, setLeadPriority] = useState('medium');
-  const [leadDueDate, setLeadDueDate] = useState('');
   
   // Customer form
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
@@ -30,7 +29,19 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
   const [taskDesc, setTaskDesc] = useState('');
   const [taskPriority, setTaskPriority] = useState('medium');
   const [taskDueDate, setTaskDueDate] = useState(new Date(Date.now() + 3600000 * 48).toISOString().split('T')[0]);
-  const [relatedName, setRelatedName] = useState('');
+  const [selectedTaskCustomerId, setSelectedTaskCustomerId] = useState('');
+
+  // Reset form fields when modal open state or active tab changes
+  useEffect(() => {
+    setSelectedLeadId('');
+    setSelectedCustomerId('');
+    setTaskTitle('');
+    setTaskDesc('');
+    setTaskPriority('medium');
+    setTaskDueDate(new Date(Date.now() + 3600000 * 48).toISOString().split('T')[0]);
+    setSelectedTaskCustomerId('');
+    setErrorMsg('');
+  }, [open, activeTab]);
 
   // Fetch real leads and customers from database
   const { data: leadsData } = useQuery({
@@ -57,7 +68,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
   // Mutations for assigning
   const assignLeadMutation = useMutation({
     mutationFn: async (leadId: string) => {
-      await api.put(`/leads/${leadId}`, { assigned_to: staff?.id });
+      await api.put(`/leads/${leadId}`, { assignedTo: staff?.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -67,7 +78,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
 
   const assignCustomerMutation = useMutation({
     mutationFn: async (customerId: string) => {
-      await api.put(`/customers/${customerId}`, { assigned_to: staff?.id });
+      await api.put(`/customers/${customerId}`, { assignedTo: staff?.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
@@ -89,35 +100,47 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
     try {
       if (activeTab === 'lead') {
-        if (!selectedLeadId) return;
+        if (!selectedLeadId) {
+          setErrorMsg('Please select a lead');
+          return;
+        }
         await assignLeadMutation.mutateAsync(selectedLeadId);
       } else if (activeTab === 'customer') {
-        if (!selectedCustomerId) return;
+        if (!selectedCustomerId) {
+          setErrorMsg('Please select a customer');
+          return;
+        }
         await assignCustomerMutation.mutateAsync(selectedCustomerId);
       } else if (activeTab === 'task') {
-        if (!taskTitle.trim()) return;
+        if (!taskTitle.trim()) {
+          setErrorMsg('Please enter a task title');
+          return;
+        }
         await createTaskMutation.mutateAsync({
           title: taskTitle,
           description: taskDesc,
           priority: taskPriority,
-          due_date: taskDueDate,
-          assigned_to: staff.id,
+          dueDate: taskDueDate ? new Date(taskDueDate + 'T23:59:59').toISOString() : undefined,
+          assignedTo: staff.id,
           status: 'pending',
+          customerId: selectedTaskCustomerId || null,
         });
         // Reset task form
         setTaskTitle('');
         setTaskDesc('');
         setTaskPriority('medium');
-        setRelatedName('');
+        setSelectedTaskCustomerId('');
       }
       onAssigned();
       onClose();
-    } catch {
-      // error handled silently
+    } catch (err: any) {
+      setErrorMsg(err?.response?.data?.message || err?.message || 'Failed to complete assignment');
     }
   };
+
 
   return (
     <Modal
@@ -161,45 +184,31 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
         </button>
       </div>
 
+      {errorMsg && (
+        <div className="p-3 mb-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-sm flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {activeTab === 'lead' && (
-          <>
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Select Lead *</label>
-              <select
-                required
-                value={selectedLeadId}
-                onChange={(e) => setSelectedLeadId(e.target.value)}
-                className="input-field"
-              >
-                <option value="">-- Choose a lead to reassign --</option>
-                {leads.map((lead: any) => (
-                  <option key={lead.id} value={lead.id}>
-                    {lead.name} ({lead.status})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <AlertCircle className="w-4 h-4 text-slate-400" /> Priority Level
-                </label>
-                <select value={leadPriority} onChange={(e) => setLeadPriority(e.target.value)} className="input-field">
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                  <Calendar className="w-4 h-4 text-slate-400" /> Follow-up Due Date
-                </label>
-                <input type="date" value={leadDueDate} onChange={(e) => setLeadDueDate(e.target.value)} className="input-field" />
-              </div>
-            </div>
-          </>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Select Lead *</label>
+            <select
+              required
+              value={selectedLeadId}
+              onChange={(e) => setSelectedLeadId(e.target.value)}
+              className="input-field"
+            >
+              <option value="">-- Choose a lead to reassign --</option>
+              {leads.map((lead: any) => (
+                <option key={lead.id} value={lead.id}>
+                  {lead.name} ({lead.status})
+                </option>
+              ))}
+            </select>
+          </div>
         )}
 
         {activeTab === 'customer' && (
@@ -270,14 +279,19 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Related Lead / Customer Name (Optional)</label>
-              <input
-                type="text"
-                value={relatedName}
-                onChange={(e) => setRelatedName(e.target.value)}
-                placeholder="e.g. Acme Global Software"
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Link to Customer (Optional)</label>
+              <select
+                value={selectedTaskCustomerId}
+                onChange={(e) => setSelectedTaskCustomerId(e.target.value)}
                 className="input-field"
-              />
+              >
+                <option value="">-- No linked customer --</option>
+                {customers.map((cust: any) => (
+                  <option key={cust.id} value={cust.id}>
+                    {cust.name} ({cust.company || 'No Company'})
+                  </option>
+                ))}
+              </select>
             </div>
           </>
         )}

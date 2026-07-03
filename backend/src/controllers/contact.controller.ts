@@ -39,7 +39,7 @@ export const getOne = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const contact = await getContactById(req.params.id as string);
+    const contact = await getContactById(req.user!, req.params.id as string);
     if (!contact) {
       res.status(404).json({ success: false, message: 'Contact not found' });
       return;

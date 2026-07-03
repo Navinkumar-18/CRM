@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Mail, Phone, Building, Target } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
 import { Modal } from '../../components/ui/Modal';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import { RecordDetailDrawer } from '../../components/common/RecordDetailDrawer';
 import { useLeadsApi } from '../../hooks/useApi';
 import { SECTORS, LEAD_STAGES, getSectorColor } from '../../constants';
 import type { Lead } from '../../types';
@@ -20,6 +19,17 @@ export const Leads = () => {
   const [formError, setFormError] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showStatusFilter, setShowStatusFilter] = useState(false);
+  const sectorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sectorRef.current && !sectorRef.current.contains(e.target as Node)) {
+        setShowStatusFilter(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -47,7 +57,6 @@ export const Leads = () => {
 
   const handleSave = async () => {
     if (!form.name.trim()) { setFormError('Name is required'); return; }
-    if (form.email && !form.email.endsWith('@gmail.com')) { setFormError('Email must be a Gmail address (@gmail.com)'); return; }
     setSaving(true);
     setFormError('');
     try {
@@ -69,7 +78,9 @@ export const Leads = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch { /* silent */ }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete lead');
+    }
   };
 
   const getLeadsByStatus = (status: string) => {
@@ -86,7 +97,7 @@ export const Leads = () => {
           <p className="text-[#565e74]">Track and manage prospective customers through the sales funnel.</p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:space-x-3 sm:gap-0">
-          <div className="relative">
+          <div className="relative" ref={sectorRef}>
             <button
               onClick={() => setShowStatusFilter(!showStatusFilter)}
               className={cn("btn-secondary flex w-full items-center justify-center text-sm sm:w-auto", statusFilter && "border-[#2563eb] text-[#2563eb]")}
@@ -210,7 +221,7 @@ export const Leads = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Phone</label>
-              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+1 234 567 890" />
+              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+91 98765 43210" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -265,60 +276,80 @@ export const Leads = () => {
       />
 
       {selectedLead && (
-        <RecordDetailDrawer
+        <Modal
           open={drawerOpen}
           onClose={() => {
             setDrawerOpen(false);
             setSelectedLeadForDrawer(null);
           }}
-          recordId={selectedLead.id}
-          recordType="lead"
-          recordName={selectedLead.name}
-          additionalDetails={
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              {selectedLead.email && (
-                <div className="col-span-2">
-                  <p className="text-slate-500 text-xs font-medium">Email</p>
-                  <p className="font-semibold text-slate-800 mt-0.5 break-all">{selectedLead.email}</p>
-                </div>
-              )}
-              {selectedLead.phone && (
-                <div>
-                  <p className="text-slate-500 text-xs font-medium">Phone</p>
-                  <p className="font-semibold text-slate-800 mt-0.5">{selectedLead.phone}</p>
-                </div>
-              )}
-              {selectedLead.source && (
-                <div>
-                  <p className="text-slate-500 text-xs font-medium">Source</p>
-                  <p className="font-semibold text-slate-800 mt-0.5">{selectedLead.source}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-slate-500 text-xs font-medium">Sector</p>
-                <span className={cn("px-2 py-0.5 rounded text-[10px] font-medium border mt-1 inline-block capitalize", getSectorColor(selectedLead.sector))}>
-                  {SECTORS.find(s => s.value === selectedLead.sector)?.label || selectedLead.sector}
-                </span>
+          title="Lead Details"
+        >
+          <div className="flex flex-col pt-2">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-bold shrink-0">
+                {selectedLead.name.substring(0, 2).toUpperCase()}
               </div>
               <div>
-                <p className="text-slate-500 text-xs font-medium">Status</p>
-                <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium inline-block mt-1 capitalize", LEAD_STAGES.find(s => s.value === selectedLead.status)?.color)}>
-                  {LEAD_STAGES.find(s => s.value === selectedLead.status)?.label || selectedLead.status}
-                </span>
-              </div>
-              <div className="col-span-2 pt-2 border-t border-slate-100 flex justify-end">
-                <button
-                  onClick={() => {
-                    openEdit(selectedLead);
-                  }}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-                >
-                  Edit Lead Details
-                </button>
+                <h2 className="text-xl font-bold text-slate-900">{selectedLead.name}</h2>
+                <p className="text-slate-500 text-sm mt-0.5">LEAD-{selectedLead.id.substring(0, 6).toUpperCase()}</p>
               </div>
             </div>
-          }
-        />
+            
+            <hr className="border-slate-100 mb-6" />
+
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4 mb-6">
+              <div>
+                <p className="text-slate-500 text-[13px] mb-1">Email</p>
+                <p className="text-slate-900 text-[15px] font-medium break-all">{selectedLead.email || '-'}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 text-[13px] mb-1">Phone</p>
+                <p className="text-slate-900 text-[15px] font-medium">{selectedLead.phone || '-'}</p>
+              </div>
+              <div>
+                <p className="text-slate-500 text-[13px] mb-1">Status</p>
+                <div className="mt-1">
+                  <span className={cn("px-3 py-1 rounded-full text-xs font-semibold capitalize", LEAD_STAGES.find(s => s.value === selectedLead.status)?.color)}>
+                    {LEAD_STAGES.find(s => s.value === selectedLead.status)?.label || selectedLead.status}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <p className="text-slate-500 text-[13px] mb-1">Sector</p>
+                <p className="text-slate-900 text-[15px] font-medium capitalize">
+                  {SECTORS.find(s => s.value === selectedLead.sector)?.label || selectedLead.sector}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-500 text-[13px] mb-1">Source</p>
+                <p className="text-slate-900 text-[15px] font-medium">{selectedLead.source || '-'}</p>
+              </div>
+            </div>
+
+            <hr className="border-slate-100 mb-4" />
+            
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => {
+                  setDrawerOpen(false);
+                  openEdit(selectedLead);
+                }}
+                className="text-indigo-600 font-semibold text-sm hover:text-indigo-700"
+              >
+                Edit Details
+              </button>
+              <button
+                onClick={() => {
+                  setDrawerOpen(false);
+                  setSelectedLeadForDrawer(null);
+                }}
+                className="px-6 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );

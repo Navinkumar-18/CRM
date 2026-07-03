@@ -29,8 +29,8 @@ export const MyCustomers = () => {
       await updateMutation.mutateAsync({ id: selectedCustomer.id, data: { notes: newNotes } as any });
       setNewNoteText('');
       setNoteModalOpen(false);
-    } catch {
-      // silent
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to add note');
     }
   };
 
@@ -39,7 +39,8 @@ export const MyCustomers = () => {
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       (c.company && c.company.toLowerCase().includes(search.toLowerCase())) ||
       (c.email || '').toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
+    const matchesSector = !sectorFilter || c.sector === sectorFilter;
+    return matchesSearch && matchesSector;
   });
 
   return (

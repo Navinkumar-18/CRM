@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Plus, Search, MoreHorizontal, Mail, Phone, Building, X, Users } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { format } from 'date-fns';
@@ -22,6 +22,17 @@ export const Customers = () => {
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [actionDropdown, setActionDropdown] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+  const sectorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sectorRef.current && !sectorRef.current.contains(e.target as Node)) {
+        setShowSectorFilter(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { useList, useCreate, useUpdate, useDelete } = useCustomersApi();
   const { data, isLoading } = useList({ page, limit: 10, search, sector: sectorFilter || undefined });
@@ -67,8 +78,8 @@ export const Customers = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch {
-      // silent for MVP
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || 'Failed to delete customer');
     }
   };
 
@@ -97,7 +108,7 @@ export const Customers = () => {
               className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
-          <div className="flex items-center space-x-2 w-full sm:w-auto relative">
+          <div className="flex items-center space-x-2 w-full sm:w-auto relative" ref={sectorRef}>
             <button onClick={() => setShowSectorFilter(!showSectorFilter)} className={cn("btn-secondary flex items-center text-sm w-full sm:w-auto justify-center", sectorFilter && "border-[#2563eb] text-[#2563eb]")}>
               <Building className="w-4 h-4 mr-2" />
               {sectorFilter ? SECTORS.find(s => s.value === sectorFilter)?.label : 'Sector'}
@@ -245,7 +256,7 @@ export const Customers = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Phone</label>
-              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+1 234 567 890" />
+              <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="input-field" placeholder="+91 98765 43210" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">

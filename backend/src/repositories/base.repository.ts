@@ -18,9 +18,11 @@ export interface PaginatedQuery<T = unknown> {
 
 export class BaseRepository {
   protected table: string;
+  protected ownershipColumn: string;
 
-  constructor(table: string) {
+  constructor(table: string, ownershipColumn = 'assigned_to') {
     this.table = table;
+    this.ownershipColumn = ownershipColumn;
   }
 
   async findById(id: string, columns = '*') {
@@ -30,7 +32,29 @@ export class BaseRepository {
       .eq('id', id)
       .single();
 
-    if (error) return null;
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    return data;
+  }
+
+  /**
+   * Like findById, but applies ownership scope so non-privileged users
+   * can only access their own records.
+   */
+  async findByIdScoped(id: string, user: AuthUser, columns = '*') {
+    const query = applyOwnershipScope(
+      supabase.from(this.table).select(columns).eq('id', id),
+      user,
+      this.ownershipColumn,
+    );
+    const { data, error } = await query.single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
     return data;
   }
 
@@ -49,6 +73,7 @@ export class BaseRepository {
     let query = applyOwnershipScope(
       supabase.from(this.table).select(extra || '*', { count: 'exact' }),
       user,
+      this.ownershipColumn,
     );
 
     for (const [key, value] of Object.entries(filters)) {
@@ -107,6 +132,7 @@ export class BaseRepository {
     const query = applyOwnershipScope(
       supabase.from(this.table).update(data).eq('id', id),
       user,
+      this.ownershipColumn,
     );
     const { data: record, error } = await query.select(columns).single();
 
@@ -118,6 +144,7 @@ export class BaseRepository {
     const { error } = await applyOwnershipScope(
       supabase.from(this.table).delete().eq('id', id),
       user,
+      this.ownershipColumn,
     );
 
     if (error) throw error;

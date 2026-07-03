@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const customerStatus = z.enum(['active', 'inactive', 'prospect']).optional();
 const sector = z
-  .enum(['general', 'school', 'hospital', 'ecommerce'])
+  .enum(['general', 'school', 'hospital', 'ecommerce', 'manufacturing', 'real_estate'])
   .optional();
 
 const optionalString = (max = 500) =>
