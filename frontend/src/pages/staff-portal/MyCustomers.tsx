@@ -26,11 +26,12 @@ export const MyCustomers = () => {
     const existingNotes = selectedCustomer.notes || '';
     const newNotes = `${existingNotes}\n[${new Date().toLocaleDateString()}] ${newNoteText.trim()}`.trim();
     try {
-      await updateMutation.mutateAsync({ id: selectedCustomer.id, data: { notes: newNotes } as any });
+      await updateMutation.mutateAsync({ id: selectedCustomer.id, data: { notes: newNotes } as Partial<Customer> });
       setNewNoteText('');
       setNoteModalOpen(false);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to add note');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to add note');
     }
   };
 

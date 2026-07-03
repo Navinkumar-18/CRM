@@ -26,25 +26,26 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import type { DashboardMetrics, Activity as ActivityData } from '../../types';
 
 const fetchMetrics = async () => {
   const response = await api.get('/dashboard/metrics');
-  return (response as any).data;
+  return (response as unknown as { data: DashboardMetrics }).data;
 };
 
 const fetchRecentActivities = async () => {
   const response = await api.get('/dashboard/recent');
-  return (response as any).data;
+  return (response as unknown as { data: ActivityData[] }).data;
 };
 
 const fetchPipeline = async () => {
   const response = await api.get('/dashboard/pipeline');
-  return (response as any).data;
+  return (response as unknown as { data: { stage: string; total: number }[] }).data;
 };
 
 const fetchFunnel = async () => {
   const response = await api.get('/dashboard/funnel');
-  return (response as any).data;
+  return (response as unknown as { data: { status: string; count: number }[] }).data;
 };
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
@@ -192,12 +193,12 @@ export const Dashboard = () => {
                     outerRadius={100}
                     paddingAngle={2}
                   >
-                    {(pipeline || []).map((_: any, index: number) => (
+                    {(pipeline || []).map((_item, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
                   <RechartsTooltip 
-                    formatter={(value: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, 'Revenue']}
+                    formatter={(value: unknown) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, 'Revenue']}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', textTransform: 'capitalize' }}
                   />
                   <Legend iconType="circle" formatter={(value) => <span style={{ textTransform: 'capitalize', color: '#475569', fontSize: '13px' }}>{value}</span>} />
@@ -236,7 +237,7 @@ export const Dashboard = () => {
                 <p className="text-slate-500 text-sm">No recent activities yet.</p>
               </div>
             ) : (
-              activities?.slice(0, 8).map((activity: any) => (
+              activities?.slice(0, 8).map((activity: ActivityData) => (
                 <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 group">
                   <div className="mt-0.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center border border-blue-100">

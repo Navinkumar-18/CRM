@@ -5,6 +5,7 @@ import {
   CreateCompanyInput,
   UpdateCompanyInput,
 } from '../schemas/company.schema';
+import { resolveAssignedTo } from '../utils/access';
 
 export const getCompanies = async (
   user: AuthUser,
@@ -47,7 +48,7 @@ export const createCompany = async (
     gst_number: body.gst_number || null,
     iso_certificate: body.iso_certificate || null,
     sector: body.sector ?? 'general',
-    owner_id: body.owner_id || user.id,
+    owner_id: resolveAssignedTo(body.owner_id, user),
     created_by: user.id,
   })) as Record<string, string>;
 
@@ -79,13 +80,16 @@ export const updateCompany = async (
     'gst_number',
     'iso_certificate',
     'sector',
-    'owner_id',
     'verified',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
   for (const field of allowed) {
     if (body[field] !== undefined) updateData[field] = body[field];
+  }
+
+  if (body.owner_id !== undefined) {
+    updateData['owner_id'] = resolveAssignedTo(body.owner_id, user);
   }
 
   const data = (await companyRepository.update(id, updateData, user)) as Record<

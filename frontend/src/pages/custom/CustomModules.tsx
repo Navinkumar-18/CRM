@@ -60,8 +60,8 @@ export const CustomModules = () => {
   const { data: modules, isLoading } = useQuery<CustomModule[]>({
     queryKey: ['custom-modules'],
     queryFn: async () => {
-      const res = await api.get('/custom/modules') as any;
-      return res.data;
+      const res = await api.get('/custom/modules');
+      return (res as unknown as { data: CustomModule[] }).data;
     },
   });
 
@@ -69,8 +69,8 @@ export const CustomModules = () => {
   const { data: moduleDetail } = useQuery<CustomModule>({
     queryKey: ['custom-module', activeModule?.slug],
     queryFn: async () => {
-      const res = await api.get(`/custom/modules/${activeModule!.slug}`) as any;
-      return res.data;
+      const res = await api.get(`/custom/modules/${activeModule!.slug}`);
+      return (res as unknown as { data: CustomModule }).data;
     },
     enabled: !!activeModule?.slug,
   });
@@ -78,8 +78,8 @@ export const CustomModules = () => {
   // Create module mutation
   const createModule = useMutation({
     mutationFn: async (data: typeof emptyModule) => {
-      const res = await api.post('/custom/modules', data) as any;
-      return res.data;
+      const res = await api.post('/custom/modules', data);
+      return (res as unknown as { data: CustomModule }).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-modules'] });
@@ -102,8 +102,8 @@ export const CustomModules = () => {
   // Add field mutation
   const addField = useMutation({
     mutationFn: async ({ slug, data }: { slug: string; data: typeof emptyField }) => {
-      const res = await api.post(`/custom/modules/${slug}/fields`, data) as any;
-      return res.data;
+      const res = await api.post(`/custom/modules/${slug}/fields`, data);
+      return (res as unknown as { data: CustomField }).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-module', activeModule?.slug] });
@@ -130,8 +130,9 @@ export const CustomModules = () => {
     setModuleFormError('');
     try {
       await createModule.mutateAsync(moduleForm);
-    } catch (err: any) {
-      setModuleFormError(err?.response?.data?.message || err?.message || 'Failed to create module');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setModuleFormError(error?.response?.data?.message || error?.message || 'Failed to create module');
     } finally {
       setModuleSaving(false);
     }
@@ -145,8 +146,9 @@ export const CustomModules = () => {
     setFieldFormError('');
     try {
       await addField.mutateAsync({ slug: activeModule!.slug, data: fieldForm });
-    } catch (err: any) {
-      setFieldFormError(err?.response?.data?.message || err?.message || 'Failed to add field');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFieldFormError(error?.response?.data?.message || error?.message || 'Failed to add field');
     } finally {
       setFieldSaving(false);
     }

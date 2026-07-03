@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/triple-slash-reference */
 /// <reference path="./types/express.d.ts" />
 import 'express-async-errors';
 import express from 'express';

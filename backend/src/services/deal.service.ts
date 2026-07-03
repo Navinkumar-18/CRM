@@ -6,6 +6,7 @@ import {
   UpdateDealInput,
   UpdateDealStageInput,
 } from '../schemas/deal.schema';
+import { resolveAssignedTo } from '../utils/access';
 
 const STAGE_PROBABILITIES: Record<string, number> = {
   prospecting: 10,
@@ -55,7 +56,7 @@ export const createDeal = async (user: AuthUser, body: CreateDealInput) => {
     lead_id: body.lead_id || null,
     company_id: body.company_id || null,
     contact_id: body.contact_id || null,
-    assigned_to: body.assigned_to || user.id,
+    assigned_to: resolveAssignedTo(body.assigned_to, user),
     created_by: user.id,
     lost_reason: null,
   })) as Record<string, string>;
@@ -84,13 +85,16 @@ export const updateDeal = async (
     'lead_id',
     'company_id',
     'contact_id',
-    'assigned_to',
     'lost_reason',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
   for (const field of allowed) {
     if (body[field] !== undefined) updateData[field] = body[field];
+  }
+
+  if (body.assigned_to !== undefined) {
+    updateData['assigned_to'] = resolveAssignedTo(body.assigned_to, user);
   }
 
   const data = (await dealRepository.update(id, updateData, user)) as Record<

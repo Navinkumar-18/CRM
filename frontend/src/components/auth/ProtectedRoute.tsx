@@ -53,11 +53,15 @@ export const ProtectedRoute = ({ requireAdmin = false }: ProtectedRouteProps) =>
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && user?.role !== 'admin') {
-    if (location.pathname === '/leads') return <Navigate to="/my-leads" replace />;
-    if (location.pathname === '/customers') return <Navigate to="/my-customers" replace />;
-    if (location.pathname === '/tasks') return <Navigate to="/my-tasks" replace />;
-    return <Navigate to="/" replace />;
+  if (requireAdmin) {
+    const isStaffPath = location.pathname === '/staff' || location.pathname.startsWith('/staff/');
+    const isAllowed = isStaffPath ? user?.role === 'admin' : (user?.role === 'admin' || user?.role === 'manager');
+    if (!isAllowed) {
+      if (location.pathname === '/leads') return <Navigate to="/my-leads" replace />;
+      if (location.pathname === '/customers') return <Navigate to="/my-customers" replace />;
+      if (location.pathname === '/tasks') return <Navigate to="/my-tasks" replace />;
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <Outlet />;

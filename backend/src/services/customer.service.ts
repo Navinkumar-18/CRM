@@ -5,6 +5,7 @@ import {
   CreateCustomerInput,
   UpdateCustomerInput,
 } from '../schemas/customer.schema';
+import { resolveAssignedTo } from '../utils/access';
 
 export const getCustomers = async (
   user: AuthUser,
@@ -39,7 +40,7 @@ export const createCustomer = async (
     status: body.status || 'prospect',
     sector: body.sector || 'general',
     notes: body.notes || null,
-    assigned_to: body.assignedTo || user.id,
+    assigned_to: resolveAssignedTo(body.assignedTo, user),
   })) as Record<string, string>;
 
   void logActivity({
@@ -76,7 +77,7 @@ export const updateCustomer = async (
   }
 
   if (body.assignedTo !== undefined) {
-    updateData['assigned_to'] = body.assignedTo;
+    updateData['assigned_to'] = resolveAssignedTo(body.assignedTo, user);
   }
 
   const data = (await customerRepository.update(

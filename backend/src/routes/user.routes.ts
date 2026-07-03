@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { list, getById, create, update, remove, getUserActivities } from '../controllers/user.controller';
+import {
+  list,
+  getById,
+  create,
+  update,
+  remove,
+  getUserActivities,
+} from '../controllers/user.controller';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roles';
 import { validate } from '../middleware/validate';

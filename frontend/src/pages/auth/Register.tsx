@@ -41,9 +41,10 @@ export const Register = () => {
         email: data.email,
         password: data.password,
       });
-      setSuccessMsg((response as any).message || 'Registration successful! Please check your email to verify your account.');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to register');
+      setSuccessMsg((response as unknown as { message?: string }).message || 'Registration successful! Please check your email to verify your account.');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setError(error.response?.data?.message || 'Failed to register');
     } finally {
       setIsLoading(false);
     }

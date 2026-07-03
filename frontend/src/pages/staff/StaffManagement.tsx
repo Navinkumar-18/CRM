@@ -43,7 +43,7 @@ export const StaffManagement = () => {
     queryKey: ['users'],
     queryFn: async () => {
       const res = await api.get('/users?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: User[] } }).data;
     },
   });
 
@@ -61,9 +61,9 @@ export const StaffManagement = () => {
 
   // Update user mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, any> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<User> }) => {
       const res = await api.put(`/users/${id}`, data);
-      return (res as any).data;
+      return (res as unknown as { data: User }).data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -75,7 +75,7 @@ export const StaffManagement = () => {
     setApiSuccess(null);
     if (isEdit && editingStaff) {
       try {
-        const updatePayload: Record<string, any> = {};
+        const updatePayload: Partial<User> & { password?: string } = {};
         if (data.name) updatePayload.name = data.name;
         if (data.role) updatePayload.role = data.role;
         if (data.password) updatePayload.password = data.password;
@@ -86,8 +86,9 @@ export const StaffManagement = () => {
         await updateMutation.mutateAsync({ id: editingStaff.id, data: updatePayload });
         setApiSuccess(`✅ Staff member ${data.name || editingStaff.name} updated successfully.`);
         setTimeout(() => setApiSuccess(null), 6000);
-      } catch (err: any) {
-        const msg = err.response?.data?.message || 'Failed to update staff member.';
+      } catch (err) {
+        const error = err as { response?: { data?: { message?: string } }; message?: string };
+        const msg = error.response?.data?.message || 'Failed to update staff member.';
         setApiError(msg);
       }
     } else {
@@ -106,8 +107,9 @@ export const StaffManagement = () => {
         queryClient.invalidateQueries({ queryKey: ['users'] });
         setApiSuccess(`✅ Account created for ${data.name} (${data.email}) as ${data.role || 'employee'}.`);
         setTimeout(() => setApiSuccess(null), 6000);
-      } catch (err: any) {
-        const msg = err.response?.data?.message || 'Failed to create staff account. Please try again.';
+      } catch (err) {
+        const error = err as { response?: { data?: { message?: string } }; message?: string };
+        const msg = error.response?.data?.message || 'Failed to create staff account. Please try again.';
         setApiError(msg);
       }
     }
@@ -125,8 +127,9 @@ export const StaffManagement = () => {
       setApiSuccess(`Staff member "${deleteTarget.name}" deleted successfully.`);
       setTimeout(() => setApiSuccess(null), 6000);
       setDeleteTarget(null);
-    } catch (err: any) {
-      const msg = err.response?.data?.message || 'Failed to delete staff member.';
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      const msg = error.response?.data?.message || 'Failed to delete staff member.';
       setApiError(msg);
       setDeleteTarget(null);
     }

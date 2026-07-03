@@ -1,5 +1,6 @@
 import { customRepository } from '../repositories/custom.repository';
 import { AuthUser } from '../types/database';
+import { NotFoundError } from '../utils/AppError';
 import {
   CreateCustomModuleInput,
   CreateCustomFieldInput,
@@ -13,8 +14,7 @@ export const listModules = async () => {
 
 export const getModuleBySlug = async (slug: string) => {
   const module = await customRepository.getModuleBySlug(slug);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
+  if (!module) throw new NotFoundError('Module not found');
   return module;
 };
 
@@ -36,15 +36,13 @@ export const updateModule = async (
   data: Partial<CreateCustomModuleInput>,
 ) => {
   const module = await customRepository.getModuleById(id);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
+  if (!module) throw new NotFoundError('Module not found');
   return customRepository.updateModule(id, data);
 };
 
 export const deleteModule = async (id: string) => {
   const module = await customRepository.getModuleById(id);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
+  if (!module) throw new NotFoundError('Module not found');
   await customRepository.deleteModule(id);
 };
 
@@ -54,8 +52,7 @@ export const addField = async (
   body: CreateCustomFieldInput,
 ) => {
   const module = await customRepository.getModuleBySlug(slug);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
+  if (!module) throw new NotFoundError('Module not found');
   return customRepository.addField(module.id, {
     label: body.label,
     field_key: body.field_key,
@@ -74,11 +71,11 @@ export const listRecords = async (
   slug: string,
   page: number,
   limit: number,
+  user: AuthUser,
 ) => {
   const module = await customRepository.getModuleBySlug(slug);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
-  return customRepository.listRecords(module.id, page, limit);
+  if (!module) throw new NotFoundError('Module not found');
+  return customRepository.listRecords(module.id, page, limit, user);
 };
 
 export const createRecord = async (
@@ -87,8 +84,7 @@ export const createRecord = async (
   body: CreateCustomRecordInput,
 ) => {
   const module = await customRepository.getModuleBySlug(slug);
-  if (!module)
-    throw Object.assign(new Error('Module not found'), { statusCode: 404 });
+  if (!module) throw new NotFoundError('Module not found');
   return customRepository.createRecord({
     module_id: module.id,
     data: body.data,
@@ -100,13 +96,15 @@ export const createRecord = async (
 export const updateRecord = async (
   id: string,
   body: UpdateCustomRecordInput,
+  user: AuthUser,
 ) => {
   return customRepository.updateRecord(
     id,
     body.data as Record<string, unknown>,
+    user,
   );
 };
 
-export const deleteRecord = async (id: string) => {
-  await customRepository.deleteRecord(id);
+export const deleteRecord = async (id: string, user: AuthUser) => {
+  await customRepository.deleteRecord(id, user);
 };

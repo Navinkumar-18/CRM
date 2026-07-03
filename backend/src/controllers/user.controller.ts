@@ -51,7 +51,8 @@ export const create = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { email, password, name, role, phone, position, department, status } = req.body as CreateUserInput;
+    const { email, password, name, role, phone, position, department, status } =
+      req.body as CreateUserInput;
 
     // Check for duplicate email
     const { data: existing } = await supabase
@@ -97,7 +98,8 @@ export const update = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { name, password, role, phone, position, department, status } = req.body as UpdateUserInput;
+    const { name, password, role, phone, position, department, status } =
+      req.body as UpdateUserInput;
     const updateData: Record<string, unknown> = {};
 
     if (name) updateData.name = name;
@@ -169,11 +171,13 @@ export const getUserActivities = async (
 ): Promise<void> => {
   try {
     const id = req.params.id as string;
-    
+
     // Get staff member to attach user object
     const staff = await userRepository.findById(id);
     if (!staff) {
-      res.status(404).json({ success: false, message: 'Staff member not found' });
+      res
+        .status(404)
+        .json({ success: false, message: 'Staff member not found' });
       return;
     }
 

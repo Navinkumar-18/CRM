@@ -4,7 +4,14 @@ const leadStatus = z
   .enum(['new', 'contacted', 'qualified', 'won', 'lost'])
   .optional();
 const sector = z
-  .enum(['general', 'school', 'hospital', 'ecommerce', 'manufacturing', 'real_estate'])
+  .enum([
+    'general',
+    'school',
+    'hospital',
+    'ecommerce',
+    'manufacturing',
+    'real_estate',
+  ])
   .optional();
 
 const optionalString = (max = 500) =>

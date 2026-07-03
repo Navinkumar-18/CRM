@@ -50,8 +50,10 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = user?.role === 'admin';
-  const navItems = isAdmin ? adminNavigation : staffNavigation;
+  const isPrivileged = user?.role === 'admin' || user?.role === 'manager';
+  const navItems = isPrivileged
+    ? adminNavigation.filter(item => item.href !== '/staff' || user?.role === 'admin')
+    : staffNavigation;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -64,6 +66,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(false);
   }, [location.pathname]);
 
@@ -87,7 +90,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           <Activity className="w-6 h-6 text-white mr-2" />
           <span className="text-xl font-bold text-white">Zuna CRM</span>
           <span className="ml-auto text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-white/20 text-white">
-            {isAdmin ? 'Admin' : 'Staff'}
+            {user?.role === 'admin' ? 'Admin' : user?.role === 'manager' ? 'Manager' : 'Staff'}
           </span>
         </div>
 

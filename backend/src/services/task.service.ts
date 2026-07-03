@@ -34,14 +34,18 @@ export const getTasks = async (
       start.setHours(0, 0, 0, 0);
       const end = new Date();
       end.setHours(23, 59, 59, 999);
-      query = query.gte('due_date', start.toISOString()).lte('due_date', end.toISOString());
+      query = query
+        .gte('due_date', start.toISOString())
+        .lte('due_date', end.toISOString());
     } else if (dateFilter === 'this_week') {
       const start = new Date();
       start.setHours(0, 0, 0, 0);
       const end = new Date();
       end.setDate(end.getDate() + 7);
       end.setHours(23, 59, 59, 999);
-      query = query.gte('due_date', start.toISOString()).lte('due_date', end.toISOString());
+      query = query
+        .gte('due_date', start.toISOString())
+        .lte('due_date', end.toISOString());
     }
   }
 
@@ -102,7 +106,7 @@ export const updateTask = async (
 
   if (body.dueDate !== undefined) updateData.due_date = body.dueDate;
   if (body.assignedTo !== undefined) {
-    updateData.assigned_to = body.assignedTo;
+    updateData.assigned_to = resolveAssignedTo(body.assignedTo, user);
   }
   if (body.customerId !== undefined) {
     updateData.customer_id = body.customerId;
@@ -117,7 +121,9 @@ export const updateTask = async (
   void logActivity({
     type: isCompletion ? 'task_completed' : 'task_assigned',
     userId: user.id,
-    description: isCompletion ? `Completed task "${data.title}"` : `Updated task "${data.title}"`,
+    description: isCompletion
+      ? `Completed task "${data.title}"`
+      : `Updated task "${data.title}"`,
     taskId: data.id,
   });
 

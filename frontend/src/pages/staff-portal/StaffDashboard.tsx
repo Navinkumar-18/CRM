@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useLeadsApi, useCustomersApi, useTasksApi } from '../../hooks/useApi';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api/axios';
-import type { Lead, Task, Activity } from '../../types';
+import type { Lead, Task, Activity, Customer, ApiResponse } from '../../types';
 import { 
   Target, 
   Users, 
@@ -34,16 +34,16 @@ export const StaffDashboard = () => {
   const updateTaskMutation = useTaskUpdate();
 
   // Activities from the real API
-  const { data: activitiesData } = useQuery({
+  const { data: activitiesData } = useQuery<Activity[]>({
     queryKey: ['my-activities'],
     queryFn: async () => {
-      const response = await api.get('/activities?limit=10');
-      return (response as any).data;
+      const response = await api.get('/activities?limit=10') as ApiResponse<Activity[]>;
+      return response.data;
     },
   });
 
   const myLeads: Lead[] = (leadsData?.data as Lead[]) || [];
-  const myCustomers = (custData?.data as any[]) || [];
+  const myCustomers: Customer[] = (custData?.data as Customer[]) || [];
   const myTasks: Task[] = (taskData?.data as Task[]) || [];
   const myActivities: Activity[] = activitiesData || [];
 
@@ -56,7 +56,7 @@ export const StaffDashboard = () => {
       setTimeout(() => setCelebrateTaskId(null), 1500);
     }
     try {
-      await updateTaskMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
+      await updateTaskMutation.mutateAsync({ id: task.id, data: { status: newStatus } as Partial<Task> });
     } catch {
       // silent
     }

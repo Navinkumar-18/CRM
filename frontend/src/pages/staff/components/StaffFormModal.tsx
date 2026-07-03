@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { Modal } from '../../../components/ui/Modal';
-import type { User } from '../../../types';
+import type { User, UserRole } from '../../../types';
 import { Shield, Mail, Phone, Briefcase, Building, Lock } from 'lucide-react';
 
 interface StaffFormModalProps {
@@ -158,7 +159,7 @@ export const StaffFormModal = ({ open, onClose, onSave, initialData }: StaffForm
             </label>
             <select
               value={form.role}
-              onChange={(e) => setForm({ ...form, role: e.target.value as any })}
+              onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
               className="input-field"
             >
               <option value="admin">Admin (Full system & staff management access)</option>
@@ -172,7 +173,7 @@ export const StaffFormModal = ({ open, onClose, onSave, initialData }: StaffForm
             <label className="block text-sm font-semibold text-slate-700 mb-1">Account Status</label>
             <select
               value={form.status}
-              onChange={(e) => setForm({ ...form, status: e.target.value as any })}
+              onChange={(e) => setForm({ ...form, status: e.target.value as 'active' | 'inactive' })}
               className="input-field"
             >
               <option value="active">Active (Can log in & receive leads)</option>

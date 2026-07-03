@@ -55,7 +55,7 @@ export const Tasks = () => {
     setSaving(true);
     setFormError('');
     try {
-      const payload: any = { ...form };
+      const payload: Partial<Task> & { notes?: string } = { ...form };
       if (payload.dueDate) {
         payload.dueDate = new Date(payload.dueDate).toISOString();
       } else {
@@ -63,13 +63,14 @@ export const Tasks = () => {
       }
       delete payload.notes;
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: payload });
+        await updateMutation.mutateAsync({ id: editing.id, data: payload as Partial<Task> });
       } else {
-        await createMutation.mutateAsync(payload);
+        await createMutation.mutateAsync(payload as Partial<Task>);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save task');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save task');
     } finally {
       setSaving(false);
     }
@@ -79,9 +80,10 @@ export const Tasks = () => {
     if (e) e.stopPropagation();
     const newStatus = task.status === 'completed' ? 'pending' : 'completed';
     try {
-      await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to update task');
+      await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as Partial<Task> });
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to update task');
     }
   };
 
@@ -90,8 +92,9 @@ export const Tasks = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete task');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete task');
     }
   };
 
@@ -293,13 +296,13 @@ export const Tasks = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Priority</label>
-              <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value as any })} className="input-field">
+              <select value={form.priority} onChange={e => setForm({ ...form, priority: e.target.value as Task['priority'] })} className="input-field">
                 {TASK_PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Status</label>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as any })} className="input-field">
+              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as Task['status'] })} className="input-field">
                 {TASK_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

@@ -16,7 +16,7 @@ import { verifyGstNumber } from '../services/gst.service';
 export const verifyGst = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): Promise<void> => {
   try {
     const gst = req.params.gst as string;

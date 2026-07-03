@@ -3,8 +3,13 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { supabase } from '../config/supabase';
 import { env } from '../config/env';
-import { sendVerificationEmail, sendResetPasswordEmail } from './email.service';
-import { AppError, UnauthorizedError, ConflictError } from '../utils/AppError';
+import { sendResetPasswordEmail } from './email.service';
+import {
+  AppError,
+  UnauthorizedError,
+  ConflictError,
+  ForbiddenError,
+} from '../utils/AppError';
 import { logger } from '../config/logger';
 import type { StringValue } from 'ms';
 
@@ -70,55 +75,13 @@ const purgeExpiredTokens = async (userId: string): Promise<void> => {
 // ---------------------------------------------------------------------------
 
 export const registerUser = async (
-  email: string,
-  password: string,
-  name: string,
+  _email: string,
+  _password: string,
+  _name: string,
 ) => {
-  const { data: existing } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle();
-
-  if (existing) {
-    throw new ConflictError('User already exists');
-  }
-
-  const passwordHash = await bcrypt.hash(password, env.bcryptRounds);
-  const verificationToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto
-    .createHash('sha256')
-    .update(verificationToken)
-    .digest('hex');
-
-  const { data: user, error } = await supabase
-    .from('users')
-    .insert({
-      id: crypto.randomUUID(),
-      email,
-      password_hash: passwordHash,
-      name,
-      is_verified: false,
-      verification_token: tokenHash,
-    })
-    .select('*')
-    .single();
-
-  if (error || !user) {
-    logger.error({ err: error }, 'User registration failed');
-    throw new AppError('Registration failed', 400);
-  }
-
-  // Fire-and-forget — don't block registration on email delivery
-  sendVerificationEmail(email, name, verificationToken).catch((err) =>
-    logger.error({ err, email }, 'Verification email failed to send'),
+  throw new ForbiddenError(
+    'Public registration is disabled. Please contact your administrator.',
   );
-
-  return {
-    user,
-    message:
-      'Registration successful. Please verify your email before logging in.',
-  };
 };
 
 export const loginUser = async (email: string, password: string) => {

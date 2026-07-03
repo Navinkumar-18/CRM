@@ -98,8 +98,9 @@ export const Companies = () => {
     try {
       const details = await verifyGst(gstInput);
       setVerifiedDetails(details);
-    } catch (err: any) {
-      setGstError(err.response?.data?.message || err.message || 'Failed to verify GST');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setGstError(error.response?.data?.message || error.message || 'Failed to verify GST');
     } finally {
       setGstLoading(false);
     }
@@ -111,13 +112,14 @@ export const Companies = () => {
     setFormError('');
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: form as any });
+        await updateMutation.mutateAsync({ id: editing.id, data: form as unknown as Partial<Company> });
       } else {
-        await createMutation.mutateAsync(form as any);
+        await createMutation.mutateAsync(form as unknown as Partial<Company>);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save company');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save company');
     } finally {
       setSaving(false);
     }
@@ -128,8 +130,9 @@ export const Companies = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete company');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete company');
     }
   };
 
@@ -355,7 +358,7 @@ export const Companies = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Sector</label>
-              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as any })} className="input-field">
+              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as Company['sector'] })} className="input-field">
                 {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

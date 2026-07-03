@@ -54,13 +54,14 @@ export const Contacts = () => {
     setFormError('');
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: form as any });
+        await updateMutation.mutateAsync({ id: editing.id, data: form as unknown as Partial<Contact> });
       } else {
-        await createMutation.mutateAsync(form as any);
+        await createMutation.mutateAsync(form as unknown as Partial<Contact>);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save contact');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save contact');
     } finally {
       setSaving(false);
     }
@@ -71,8 +72,9 @@ export const Contacts = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete contact');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete contact');
     }
   };
 

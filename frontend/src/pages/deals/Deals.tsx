@@ -81,17 +81,18 @@ export const Deals = () => {
     setSaving(true);
     setFormError('');
     try {
-      const payload: any = { ...form };
+      const payload: Partial<Deal> & { expected_close_dt?: string; lost_reason?: string } = { ...form };
       if (!payload.expected_close_dt) delete payload.expected_close_dt;
       if (!payload.lost_reason) delete payload.lost_reason;
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: payload });
+        await updateMutation.mutateAsync({ id: editing.id, data: payload as unknown as Partial<Deal> });
       } else {
-        await createMutation.mutateAsync(payload);
+        await createMutation.mutateAsync(payload as unknown as Partial<Deal>);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save deal');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save deal');
     } finally {
       setSaving(false);
     }
@@ -102,8 +103,9 @@ export const Deals = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete deal');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete deal');
     }
   };
 
@@ -121,7 +123,7 @@ export const Deals = () => {
         data: {
           stage: stageValue,
           probability: defaultProb,
-        } as any,
+        } as Partial<Deal>,
       });
     } catch (err) {
       console.error('Failed to update deal stage:', err);
@@ -292,7 +294,7 @@ export const Deals = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Stage</label>
-              <select value={form.stage} onChange={e => setForm({ ...form, stage: e.target.value as any })} className="input-field">
+              <select value={form.stage} onChange={e => setForm({ ...form, stage: e.target.value as Deal['stage'] })} className="input-field">
                 {DEAL_STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

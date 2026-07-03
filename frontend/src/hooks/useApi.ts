@@ -5,7 +5,7 @@ import type { ApiResponse, PaginatedData } from '../types';
 function useEntityApi<T>(baseKey: string, endpoint: string) {
   const queryClient = useQueryClient();
 
-  const useList = (params?: Record<string, any>) => useQuery<PaginatedData<T>>({
+  const useList = (params?: Record<string, unknown>) => useQuery<PaginatedData<T>>({
     queryKey: [baseKey, params],
     queryFn: async () => {
       const res = await api.get(endpoint, { params }) as ApiResponse<PaginatedData<T>>;

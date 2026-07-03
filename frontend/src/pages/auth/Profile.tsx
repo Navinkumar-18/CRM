@@ -18,7 +18,7 @@ export const Profile = () => {
     setError('');
 
     try {
-      const payload: any = { name, email };
+      const payload: { name: string; email: string; password?: string } = { name, email };
       if (password) {
         payload.password = password;
       }
@@ -26,8 +26,9 @@ export const Profile = () => {
       setUser(response.data.data);
       setMessage('Profile updated successfully.');
       setPassword('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'An error occurred. Make sure your password meets the policy requirements.');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setError(error.response?.data?.message || 'An error occurred. Make sure your password meets the policy requirements.');
     } finally {
       setLoading(false);
     }

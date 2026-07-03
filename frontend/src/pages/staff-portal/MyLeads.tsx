@@ -22,9 +22,10 @@ export const MyLeads = () => {
 
   const handleStatusChange = async (leadId: string, status: string) => {
     try {
-      await updateMutation.mutateAsync({ id: leadId, data: { status } as any });
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to update lead status');
+      await updateMutation.mutateAsync({ id: leadId, data: { status } as Partial<Lead> });
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to update lead status');
     }
   };
 
@@ -34,11 +35,12 @@ export const MyLeads = () => {
     const existingNotes = selectedLead.notes || '';
     const newNotes = `${existingNotes}\n[${new Date().toLocaleDateString()}] ${newNoteText.trim()}`.trim();
     try {
-      await updateMutation.mutateAsync({ id: selectedLead.id, data: { notes: newNotes } as any });
+      await updateMutation.mutateAsync({ id: selectedLead.id, data: { notes: newNotes } as Partial<Lead> });
       setNewNoteText('');
       setNoteModalOpen(false);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to add note');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to add note');
     }
   };
 

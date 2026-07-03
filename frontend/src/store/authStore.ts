@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '../api/axios';
+import { setAccessToken } from '../utils/token';
 
 interface User {
   id: string;
@@ -26,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       lastValidated: null,
       login: (user, token) => {
-        localStorage.setItem('accessToken', token);
+        setAccessToken(token);
         set({ user, isAuthenticated: true, lastValidated: Date.now() });
       },
       logout: async () => {
@@ -36,7 +37,7 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           // Even if the backend call fails, still clear local state
         }
-        localStorage.removeItem('accessToken');
+        setAccessToken(null);
         set({ user: null, isAuthenticated: false, lastValidated: null });
       },
       setUser: (user) => {
@@ -48,6 +49,11 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+        lastValidated: state.lastValidated,
+      }),
     }
   )
 );

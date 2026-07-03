@@ -1,40 +1,36 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm as useRHForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useAuthStore } from '../../store/authStore';
 import api from '../../api/axios';
-import { Activity, Eye, EyeOff, Target, Users, CheckSquare, TrendingUp } from 'lucide-react';
+import { Activity, Target, Users, CheckSquare, TrendingUp, KeyRound } from 'lucide-react';
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(1, { message: 'Password is required' }),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
-export const Login = () => {
-  const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+export const ForgotPassword = () => {
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useRHForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const { register, handleSubmit, formState: { errors } } = useRHForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
     setIsLoading(true);
     setError(null);
+    setSuccessMsg(null);
     try {
-      const response = await api.post('/auth/login', data);
-      login(response.data.user, response.data.accessToken);
-      navigate('/');
+      const response = await api.post('/auth/forgot-password', data);
+      setSuccessMsg((response as { message?: string }).message || 'If that email exists, a reset link has been sent.');
     } catch (err) {
-      const error = err as { response?: { data?: { message?: string } }; message?: string };
-      setError(error.response?.data?.message || 'Failed to login');
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to request reset link');
     } finally {
       setIsLoading(false);
     }
@@ -79,16 +75,18 @@ export const Login = () => {
               <Activity className="w-7 h-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Zuna CRM</h1>
-            <p className="text-slate-500 mt-1">Sign in to your workspace</p>
+            <p className="text-slate-500 mt-1">Reset your password</p>
           </div>
 
           <div className="glass-panel-elevated p-5 sm:p-8">
             <div className="hidden lg:flex flex-col items-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4">
-                <Activity className="w-6 h-6 text-white" />
+                <KeyRound className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">Welcome Back</h2>
-              <p className="text-slate-500 text-sm mt-1">Sign in to your workspace</p>
+              <h2 className="text-xl font-bold text-slate-900">Reset Password</h2>
+              <p className="text-slate-500 text-sm mt-1 text-center">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
             </div>
 
             {error && (
@@ -98,9 +96,16 @@ export const Login = () => {
               </div>
             )}
 
+            {successMsg && (
+              <div className="mb-5 p-3.5 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center">
+                <CheckSquare className="w-4 h-4 mr-2 shrink-0" />
+                {successMsg}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
                 <input
                   type="email"
                   {...register('email')}
@@ -108,31 +113,6 @@ export const Login = () => {
                   placeholder="you@company.com"
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-1.5">{errors.email.message}</p>}
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-sm font-medium text-slate-700">Password</label>
-                  <Link to="/forgot-password" className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    {...register('password')}
-                    className="input-field pr-10"
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-                {errors.password && <p className="text-red-500 text-xs mt-1.5">{errors.password.message}</p>}
               </div>
 
               <button
@@ -146,19 +126,21 @@ export const Login = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Signing in...
+                    Sending link...
                   </span>
-                ) : 'Sign In'}
+                ) : 'Send Reset Link'}
               </button>
             </form>
+
+            <p className="text-center text-sm text-slate-500 mt-6">
+              Back to{' '}
+              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                Sign in
+              </Link>
+            </p>
           </div>
 
-          <p className="text-center text-xs text-slate-500 mt-6 flex items-center justify-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-slate-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
-            Access is by invitation only. Contact your Admin to get started.
-          </p>
-
-          <p className="text-center text-xs text-slate-400 mt-3">
+          <p className="text-center text-xs text-slate-400 mt-6">
             Zuna CRM v0.1 — Manage your relationships
           </p>
         </div>

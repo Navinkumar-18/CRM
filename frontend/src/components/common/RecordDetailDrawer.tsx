@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
+import type { ApiResponse, PaginatedData } from '../../types';
 import { 
   X, 
   MessageSquare, 
@@ -59,24 +60,24 @@ export const RecordDetailDrawer = ({
   const queryParamName = `${recordType}_id`;
 
   // Fetch Notes
-  const { data: notesResponse, isLoading: notesLoading } = useQuery({
+  const { data: notesResponse, isLoading: notesLoading } = useQuery<PaginatedData<Note>>({
     queryKey: ['notes', recordType, recordId],
     queryFn: async () => {
       const res = await api.get('/notes', {
         params: { [queryParamName]: recordId, limit: 100 }
-      }) as any;
+      }) as ApiResponse<PaginatedData<Note>>;
       return res.data;
     },
     enabled: open && !!recordId,
   });
 
   // Fetch Activities
-  const { data: activitiesResponse, isLoading: activitiesLoading } = useQuery({
+  const { data: activitiesResponse, isLoading: activitiesLoading } = useQuery<ActivityLog[]>({
     queryKey: ['activities', recordType, recordId],
     queryFn: async () => {
       const res = await api.get('/activities', {
         params: { [queryParamName]: recordId, limit: 100 }
-      }) as any;
+      }) as ApiResponse<ActivityLog[]>;
       return res.data;
     },
     enabled: open && !!recordId,

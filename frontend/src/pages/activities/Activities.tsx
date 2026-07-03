@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api/axios';
-import { Activity, Clock, CheckCircle2, UserPlus, Target } from 'lucide-react';
+import { Activity as ActivityIcon, Clock, CheckCircle2, UserPlus, Target } from 'lucide-react';
 import { format } from 'date-fns';
 import { ACTIVITY_ICONS } from '../../constants';
+import type { Activity } from '../../types';
 
 export const Activities = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['activities'],
     queryFn: async () => {
-      const { data } = await api.get('/activities/timeline?limit=50');
-      return data;
+      const res = await api.get('/activities/timeline?limit=50');
+      return (res as unknown as { data: Activity[] }).data;
     },
   });
 
@@ -18,7 +19,7 @@ export const Activities = () => {
       case 'customer_created': return <UserPlus className="w-4 h-4 text-blue-600" />;
       case 'lead_created': return <Target className="w-4 h-4 text-purple-600" />;
       case 'task_completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      default: return <Activity className="w-4 h-4 text-slate-600" />;
+      default: return <ActivityIcon className="w-4 h-4 text-slate-600" />;
     }
   };
 
@@ -58,13 +59,13 @@ export const Activities = () => {
               ) : data?.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">
-                    <Activity className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                    <ActivityIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500 text-sm font-medium">No activities recorded yet</p>
                     <p className="text-slate-400 text-xs mt-1">Activities will appear as you interact with the CRM.</p>
                   </td>
                 </tr>
               ) : (
-                data?.map((activity: any) => (
+                data?.map((activity: Activity) => (
                   <tr key={activity.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className={`h-8 w-8 rounded-lg ${getActivityBg(activity.type)} flex items-center justify-center border border-white/50 shadow-sm`}>

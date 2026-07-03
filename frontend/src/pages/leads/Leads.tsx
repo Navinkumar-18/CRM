@@ -66,8 +66,9 @@ export const Leads = () => {
         await createMutation.mutateAsync(form);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save lead');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save lead');
     } finally {
       setSaving(false);
     }
@@ -78,8 +79,9 @@ export const Leads = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete lead');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete lead');
     }
   };
 
@@ -238,7 +240,7 @@ export const Leads = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Sector</label>
-              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as any })} className="input-field">
+              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as Lead['sector'] })} className="input-field">
                 {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
@@ -246,7 +248,7 @@ export const Leads = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Status</label>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as any })} className="input-field">
+              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as Lead['status'] })} className="input-field">
                 {LEAD_STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

@@ -2,6 +2,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Login } from './pages/auth/Login';
+import { ForgotPassword } from './pages/auth/ForgotPassword';
+import { ResetPassword } from './pages/auth/ResetPassword';
+import { VerifyEmail } from './pages/auth/VerifyEmail';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { Dashboard } from './pages/dashboard/Dashboard';
@@ -38,7 +41,7 @@ const queryClient = new QueryClient({
 
 const RoleBasedDashboard = () => {
   const { user } = useAuthStore();
-  if (user?.role === 'admin') {
+  if (user?.role === 'admin' || user?.role === 'manager') {
     return <Dashboard />;
   }
   return <StaffDashboard />;
@@ -53,6 +56,9 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route path="/register" element={<Navigate to="/login" replace />} />
             
             {/* General / Shared & Staff Portal Routes */}

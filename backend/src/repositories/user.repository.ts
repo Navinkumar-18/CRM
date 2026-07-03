@@ -1,5 +1,4 @@
 import { supabase } from '../config/supabase';
-import { env } from '../config/env';
 import crypto from 'crypto';
 
 const MAX_PAGE_LIMIT = 100;
@@ -14,7 +13,10 @@ class UserRepository {
 
     const { data, count, error } = await supabase
       .from('users')
-      .select('id, name, email, role, created_at, staffs:staffs(phone, position, department, status, employee_id, joined_date, performance)', { count: 'exact' })
+      .select(
+        'id, name, email, role, created_at, staffs:staffs(phone, position, department, status, employee_id, joined_date, performance)',
+        { count: 'exact' },
+      )
       .order('created_at', { ascending: false })
       .range(skip, skip + safeLimit - 1);
 
@@ -49,7 +51,9 @@ class UserRepository {
   async findById(id: string): Promise<unknown> {
     const { data, error } = await supabase
       .from('users')
-      .select('id, name, email, role, created_at, staffs:staffs(phone, position, department, status, employee_id, joined_date, performance)')
+      .select(
+        'id, name, email, role, created_at, staffs:staffs(phone, position, department, status, employee_id, joined_date, performance)',
+      )
       .eq('id', id)
       .single();
 
@@ -78,9 +82,18 @@ class UserRepository {
 
   async create(data: Record<string, unknown>): Promise<unknown> {
     const userId = (data.id as string) || crypto.randomUUID();
-    
+
     // Separate user table fields and staff table fields
-    const { phone, position, department, status, employee_id, joined_date, performance, ...userTableFields } = data;
+    const {
+      phone,
+      position,
+      department,
+      status,
+      employee_id,
+      performance,
+      ...userTableFields
+    } = data;
+    delete userTableFields.joined_date;
 
     // 1. Insert user
     const { data: user, error: userError } = await supabase
@@ -107,7 +120,7 @@ class UserRepository {
         department: (department as string) || 'Sales',
         status: (status as string) || 'active',
         employee_id: empId,
-        performance: performance ? parseFloat(performance as string) : 0.00,
+        performance: performance ? parseFloat(performance as string) : 0.0,
       })
       .eq('id', userId)
       .select('*')
@@ -137,10 +150,19 @@ class UserRepository {
 
   async update(id: string, data: Record<string, unknown>): Promise<unknown> {
     // Separate user table fields and staff table fields
-    const { phone, position, department, status, employee_id, joined_date, performance, ...userTableFields } = data;
+    const {
+      phone,
+      position,
+      department,
+      status,
+      employee_id,
+      performance,
+      ...userTableFields
+    } = data;
+    delete userTableFields.joined_date;
 
     // 1. Update user if any user fields are present
-    let updatedUser = null;
+    let updatedUser: any;
     if (Object.keys(userTableFields).length > 0) {
       const { data: user, error: userError } = await supabase
         .from('users')
@@ -163,7 +185,7 @@ class UserRepository {
     if (employee_id !== undefined) staffTableFields.employee_id = employee_id;
     if (performance !== undefined) staffTableFields.performance = performance;
 
-    let updatedStaff = null;
+    let updatedStaff: any;
     if (Object.keys(staffTableFields).length > 0) {
       const { data: staff, error: staffError } = await supabase
         .from('staffs')
@@ -195,7 +217,9 @@ class UserRepository {
       status: updatedStaff?.status || 'active',
       employee_id: updatedStaff?.employee_id || null,
       joined_date: updatedStaff?.joined_date || null,
-      performance: updatedStaff?.performance ? parseFloat(updatedStaff.performance) : 0,
+      performance: updatedStaff?.performance
+        ? parseFloat(updatedStaff.performance)
+        : 0,
     };
   }
 

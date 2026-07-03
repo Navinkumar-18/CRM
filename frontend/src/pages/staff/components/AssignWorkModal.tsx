@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../api/axios';
 import { Modal } from '../../../components/ui/Modal';
-import type { User } from '../../../types';
+import type { User, Lead, Customer, Task, TaskPriority } from '../../../types';
 import { Target, Users, CheckSquare, Calendar, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 
@@ -28,7 +29,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDesc, setTaskDesc] = useState('');
   const [taskPriority, setTaskPriority] = useState('medium');
-  const [taskDueDate, setTaskDueDate] = useState(new Date(Date.now() + 3600000 * 48).toISOString().split('T')[0]);
+  const [taskDueDate, setTaskDueDate] = useState(() => new Date(Date.now() + 3600000 * 48).toISOString().split('T')[0]);
   const [selectedTaskCustomerId, setSelectedTaskCustomerId] = useState('');
 
   // Reset form fields when modal open state or active tab changes
@@ -48,7 +49,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
     queryKey: ['all-leads-assign'],
     queryFn: async () => {
       const res = await api.get('/leads?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: Lead[] } }).data;
     },
     enabled: open,
   });
@@ -57,13 +58,13 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
     queryKey: ['all-customers-assign'],
     queryFn: async () => {
       const res = await api.get('/customers?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: Customer[] } }).data;
     },
     enabled: open,
   });
 
-  const leads = (leadsData?.data || []) as any[];
-  const customers = (custData?.data || []) as any[];
+  const leads = (leadsData?.data || []) as Lead[];
+  const customers = (custData?.data || []) as Customer[];
 
   // Mutations for assigning
   const assignLeadMutation = useMutation({
@@ -87,7 +88,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: async (taskData: any) => {
+    mutationFn: async (taskData: Omit<Partial<Task>, 'assignedTo'> & { assignedTo?: string; customerId?: string | null }) => {
       await api.post('/tasks', taskData);
     },
     onSuccess: () => {
@@ -122,7 +123,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
         await createTaskMutation.mutateAsync({
           title: taskTitle,
           description: taskDesc,
-          priority: taskPriority,
+          priority: taskPriority as TaskPriority,
           dueDate: taskDueDate ? new Date(taskDueDate + 'T23:59:59').toISOString() : undefined,
           assignedTo: staff.id,
           status: 'pending',
@@ -136,8 +137,9 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
       }
       onAssigned();
       onClose();
-    } catch (err: any) {
-      setErrorMsg(err?.response?.data?.message || err?.message || 'Failed to complete assignment');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setErrorMsg(error?.response?.data?.message || error?.message || 'Failed to complete assignment');
     }
   };
 
@@ -202,7 +204,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
               className="input-field"
             >
               <option value="">-- Choose a lead to reassign --</option>
-              {leads.map((lead: any) => (
+              {leads.map((lead: Lead) => (
                 <option key={lead.id} value={lead.id}>
                   {lead.name} ({lead.status})
                 </option>
@@ -221,7 +223,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
               className="input-field"
             >
               <option value="">-- Choose a customer to reassign --</option>
-              {customers.map((cust: any) => (
+              {customers.map((cust: Customer) => (
                 <option key={cust.id} value={cust.id}>
                   {cust.name} ({cust.company || 'No Company'})
                 </option>
@@ -286,7 +288,7 @@ export const AssignWorkModal = ({ open, onClose, staff, onAssigned }: AssignWork
                 className="input-field"
               >
                 <option value="">-- No linked customer --</option>
-                {customers.map((cust: any) => (
+                {customers.map((cust: Customer) => (
                   <option key={cust.id} value={cust.id}>
                     {cust.name} ({cust.company || 'No Company'})
                   </option>

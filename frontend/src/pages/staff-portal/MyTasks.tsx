@@ -22,9 +22,10 @@ export const MyTasks = () => {
       setTimeout(() => setCelebrateTaskId(null), 1500);
     }
     try {
-      await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as any });
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to update task status');
+      await updateMutation.mutateAsync({ id: task.id, data: { status: newStatus } as Partial<Task> });
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to update task status');
     }
   };
 

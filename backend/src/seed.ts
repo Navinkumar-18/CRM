@@ -6,13 +6,16 @@ const supabase = createClient(env.supabaseUrl, env.supabaseServiceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const seedAdminEmail = process.env.SEED_ADMIN_EMAIL || 'nerupunavin450@gmail.com';
+const seedAdminEmail =
+  process.env.SEED_ADMIN_EMAIL || 'nerupunavin450@gmail.com';
 const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@123';
 
 const seed = async () => {
   // Safety guard: never run seed against production
   if (env.nodeEnv === 'production') {
-    console.error('❌ SEED BLOCKED: Cannot run seed against production environment.');
+    console.error(
+      '❌ SEED BLOCKED: Cannot run seed against production environment.',
+    );
     process.exit(1);
   }
 
@@ -28,11 +31,26 @@ const seed = async () => {
     console.log('Supabase Connected for Seeding...');
 
     // Clear existing data (order matters for FK constraints)
-    await supabase.from('activities').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('tasks').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('leads').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('users').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from('activities')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from('tasks')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from('leads')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from('customers')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase
+      .from('users')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
     console.log('Cleared existing data...');
 
     // 1. Create Users (Admin + Indian Celebrities as Staff)
@@ -58,7 +76,8 @@ const seed = async () => {
           .select('*')
           .single();
 
-        if (error) throw new Error(`Failed to update user ${email}: ${error.message}`);
+        if (error)
+          throw new Error(`Failed to update user ${email}: ${error.message}`);
         return data!;
       }
 
@@ -74,21 +93,48 @@ const seed = async () => {
         .select('*')
         .single();
 
-      if (error) throw new Error(`Failed to create user ${email}: ${error.message}`);
+      if (error)
+        throw new Error(`Failed to create user ${email}: ${error.message}`);
       return data!;
     };
 
     const admin = await createUser(seedAdminEmail, 'Admin User', 'admin');
-    const amitabh = await createUser('amitabh@gmail.com', 'Amitabh Bachchan', 'manager');
-    const rajini = await createUser('rajini@gmail.com', 'Rajinikanth', 'manager');
-    const shahrukh = await createUser('shahrukh@gmail.com', 'Shah Rukh Khan', 'employee');
-    const priyanka = await createUser('priyanka@gmail.com', 'Priyanka Chopra', 'employee');
-    const deepika = await createUser('deepika@gmail.com', 'Deepika Padukone', 'employee');
-    const ranbir = await createUser('ranbir@gmail.com', 'Ranbir Kapoor', 'employee');
+    const amitabh = await createUser(
+      'amitabh@gmail.com',
+      'Amitabh Bachchan',
+      'manager',
+    );
+    const rajini = await createUser(
+      'rajini@gmail.com',
+      'Rajinikanth',
+      'manager',
+    );
+    const shahrukh = await createUser(
+      'shahrukh@gmail.com',
+      'Shah Rukh Khan',
+      'employee',
+    );
+    const priyanka = await createUser(
+      'priyanka@gmail.com',
+      'Priyanka Chopra',
+      'employee',
+    );
+    const deepika = await createUser(
+      'deepika@gmail.com',
+      'Deepika Padukone',
+      'employee',
+    );
+    const ranbir = await createUser(
+      'ranbir@gmail.com',
+      'Ranbir Kapoor',
+      'employee',
+    );
     const alia = await createUser('alia@gmail.com', 'Alia Bhatt', 'employee');
-    const aishwarya = await createUser('aishwarya@gmail.com', 'Aishwarya Rai', 'employee');
-
-    const staffUsers = [amitabh, rajini, shahrukh, priyanka, deepika, ranbir, alia, aishwarya];
+    const aishwarya = await createUser(
+      'aishwarya@gmail.com',
+      'Aishwarya Rai',
+      'employee',
+    );
     console.log('Created Users successfully in Supabase DB...');
 
     // 2. Create Customers from legacy localstorage & business data
@@ -185,7 +231,11 @@ const seed = async () => {
 
     const customers: any[] = [];
     for (const c of customerSeedData) {
-      const { data, error } = await supabase.from('customers').insert(c).select('*').single();
+      const { data, error } = await supabase
+        .from('customers')
+        .insert(c)
+        .select('*')
+        .single();
       if (error) throw new Error(`Failed customer insert: ${error.message}`);
       customers.push(data);
     }
@@ -220,7 +270,8 @@ const seed = async () => {
         source: 'Cold Call',
         status: 'new',
         sector: 'hospital',
-        notes: 'Need secure patient interaction log and scheduling integration.',
+        notes:
+          'Need secure patient interaction log and scheduling integration.',
         assigned_to: deepika.id,
       },
       {
@@ -277,7 +328,11 @@ const seed = async () => {
 
     const leads: any[] = [];
     for (const l of leadSeedData) {
-      const { data, error } = await supabase.from('leads').insert(l).select('*').single();
+      const { data, error } = await supabase
+        .from('leads')
+        .insert(l)
+        .select('*')
+        .single();
       if (error) throw new Error(`Failed lead insert: ${error.message}`);
       leads.push(data);
     }
@@ -287,34 +342,44 @@ const seed = async () => {
     const taskSeedData = [
       {
         title: 'Prepare Custom Pricing Proposal for Acme Global',
-        description: 'Draft the enterprise tier pricing discount and email to procurement team.',
+        description:
+          'Draft the enterprise tier pricing discount and email to procurement team.',
         status: 'in_progress',
         priority: 'high',
-        due_date: new Date(Date.now() + 3600000 * 24 * 1).toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 3600000 * 24 * 1)
+          .toISOString()
+          .split('T')[0],
         assigned_to: shahrukh.id,
         customer_id: customers[0].id,
       },
       {
         title: 'Quarterly Check-in Call with Vance Refrigeration',
-        description: 'Review system usage, answer support queries, and pitch the new Analytics add-on.',
+        description:
+          'Review system usage, answer support queries, and pitch the new Analytics add-on.',
         status: 'pending',
         priority: 'medium',
-        due_date: new Date(Date.now() + 3600000 * 24 * 2).toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 3600000 * 24 * 2)
+          .toISOString()
+          .split('T')[0],
         assigned_to: shahrukh.id,
         customer_id: customers[0].id,
       },
       {
         title: 'Send Onboarding Welcome Kit to Apex Logistics',
-        description: 'Provide login credentials, admin documentation link, and schedule onboarding webinar.',
+        description:
+          'Provide login credentials, admin documentation link, and schedule onboarding webinar.',
         status: 'completed',
         priority: 'high',
-        due_date: new Date(Date.now() - 3600000 * 24 * 1).toISOString().split('T')[0],
+        due_date: new Date(Date.now() - 3600000 * 24 * 1)
+          .toISOString()
+          .split('T')[0],
         assigned_to: amitabh.id,
         customer_id: customers[1].id,
       },
       {
         title: 'Follow up on Pilot Renewal with Sunnyside School District',
-        description: 'Call Arthur Pendelton regarding the upcoming contract renewal decision.',
+        description:
+          'Call Arthur Pendelton regarding the upcoming contract renewal decision.',
         status: 'pending',
         priority: 'high',
         due_date: new Date().toISOString().split('T')[0],
@@ -323,10 +388,13 @@ const seed = async () => {
       },
       {
         title: 'Schedule Product Demo for Starlight Education',
-        description: 'Coordinate 30-min Zoom demo with their admissions tracking team.',
+        description:
+          'Coordinate 30-min Zoom demo with their admissions tracking team.',
         status: 'pending',
         priority: 'medium',
-        due_date: new Date(Date.now() + 3600000 * 24 * 3).toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 3600000 * 24 * 3)
+          .toISOString()
+          .split('T')[0],
         assigned_to: priyanka.id,
         customer_id: customers[2].id,
       },
@@ -334,7 +402,11 @@ const seed = async () => {
 
     const tasks: any[] = [];
     for (const t of taskSeedData) {
-      const { data, error } = await supabase.from('tasks').insert(t).select('*').single();
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert(t)
+        .select('*')
+        .single();
       if (error) throw new Error(`Failed task insert: ${error.message}`);
       tasks.push(data);
     }
@@ -344,26 +416,30 @@ const seed = async () => {
     const activitySeedData: Record<string, any>[] = [
       {
         type: 'task_completed',
-        description: 'completed task "Send Onboarding Welcome Kit to Apex Logistics"',
+        description:
+          'completed task "Send Onboarding Welcome Kit to Apex Logistics"',
         user_id: amitabh.id,
         customer_id: customers[1].id,
         task_id: tasks[2].id,
       },
       {
         type: 'lead_updated',
-        description: 'changed lead status of "Acme Global Software" to Qualified',
+        description:
+          'changed lead status of "Acme Global Software" to Qualified',
         user_id: shahrukh.id,
         lead_id: leads[0].id,
       },
       {
         type: 'customer_updated',
-        description: 'added follow-up notes for customer "Robert Vance (Vance Refrigeration)"',
+        description:
+          'added follow-up notes for customer "Robert Vance (Vance Refrigeration)"',
         user_id: shahrukh.id,
         customer_id: customers[0].id,
       },
       {
         type: 'task_assigned',
-        description: 'assigned task "Prepare Custom Pricing Proposal for Acme Global" to Shah Rukh Khan',
+        description:
+          'assigned task "Prepare Custom Pricing Proposal for Acme Global" to Shah Rukh Khan',
         user_id: admin.id,
         task_id: tasks[0].id,
       },
@@ -375,7 +451,9 @@ const seed = async () => {
     }
     console.log('Created Activities in Supabase DB...');
 
-    console.log('🎉 SEEDING COMPLETE! All legacy localStorage data imported into Supabase database.');
+    console.log(
+      '🎉 SEEDING COMPLETE! All legacy localStorage data imported into Supabase database.',
+    );
     process.exit(0);
   } catch (error) {
     console.error('Seeding failed:', error);

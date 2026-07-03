@@ -5,6 +5,7 @@ import {
   CreateContactInput,
   UpdateContactInput,
 } from '../schemas/contact.schema';
+import { resolveAssignedTo } from '../utils/access';
 
 export const getContacts = async (
   user: AuthUser,
@@ -41,7 +42,7 @@ export const createContact = async (
     phone: body.phone || null,
     title: body.title || null,
     company_id: body.company_id || null,
-    owner_id: body.owner_id || user.id,
+    owner_id: resolveAssignedTo(body.owner_id, user),
     created_by: user.id,
   })) as Record<string, string>;
 
@@ -67,12 +68,15 @@ export const updateContact = async (
     'phone',
     'title',
     'company_id',
-    'owner_id',
   ] as const;
 
   const updateData: Record<string, unknown> = {};
   for (const field of allowed) {
     if (body[field] !== undefined) updateData[field] = body[field];
+  }
+
+  if (body.owner_id !== undefined) {
+    updateData['owner_id'] = resolveAssignedTo(body.owner_id, user);
   }
 
   const data = (await contactRepository.update(id, updateData, user)) as Record<

@@ -205,10 +205,15 @@ export const adminVerifyUser = async (
       .update({ is_verified: true, verification_token: null })
       .eq('email', email);
     if (error) {
-      res.status(500).json({ success: false, message: 'Failed to verify user' });
+      res
+        .status(500)
+        .json({ success: false, message: 'Failed to verify user' });
       return;
     }
-    res.status(200).json({ success: true, message: `User ${email} has been verified and can now log in.` });
+    res.status(200).json({
+      success: true,
+      message: `User ${email} has been verified and can now log in.`,
+    });
   } catch (error) {
     next(error);
   }

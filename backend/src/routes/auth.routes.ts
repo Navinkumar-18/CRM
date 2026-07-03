@@ -49,7 +49,12 @@ router.get('/me', protect, me);
 router.put('/me', protect, validate(updateProfileSchema), updateMe);
 
 // Admin-only: auto-verify a newly created staff user so they can log in immediately
-router.patch('/admin/verify-user', protect, authorize('admin'), adminVerifyUser);
+router.patch(
+  '/admin/verify-user',
+  protect,
+  authorize('admin'),
+  adminVerifyUser,
+);
 
 // Email verification — no auth or rate limit needed (token is the proof)
 router.post('/verify-email/:token', verificationLimiter, verifyEmailHandler);

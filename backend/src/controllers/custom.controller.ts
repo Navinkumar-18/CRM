@@ -128,7 +128,12 @@ export const getRecords = async (
   try {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, parseInt(req.query.limit as string) || 10);
-    const result = await listRecords(req.params.slug as string, page, limit);
+    const result = await listRecords(
+      req.params.slug as string,
+      page,
+      limit,
+      req.user!,
+    );
     res.json({ success: true, data: result });
   } catch (error) {
     next(error);
@@ -161,6 +166,7 @@ export const patchRecord = async (
     const record = await updateRecord(
       req.params.id as string,
       req.body as UpdateCustomRecordInput,
+      req.user!,
     );
     res.json({ success: true, data: record });
   } catch (error) {
@@ -174,7 +180,7 @@ export const destroyRecord = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    await deleteRecord(req.params.id as string);
+    await deleteRecord(req.params.id as string, req.user!);
     res.json({ success: true, data: {} });
   } catch (error) {
     next(error);

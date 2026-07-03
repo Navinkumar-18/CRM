@@ -1,4 +1,7 @@
 import { supabase } from '../config/supabase';
+import { AuthUser } from '../types/database';
+import { applyOwnershipScope } from '../utils/access';
+import { NotFoundError } from '../utils/AppError';
 
 export class CustomRepository {
   async listModules() {
@@ -77,12 +80,21 @@ export class CustomRepository {
     if (error) throw error;
   }
 
-  async listRecords(moduleId: string, page: number, limit: number) {
+  async listRecords(
+    moduleId: string,
+    page: number,
+    limit: number,
+    user: AuthUser,
+  ) {
     const skip = (page - 1) * limit;
-    const { data, count, error } = await supabase
+    let query = supabase
       .from('custom_records')
       .select('*', { count: 'exact' })
-      .eq('module_id', moduleId)
+      .eq('module_id', moduleId);
+
+    query = applyOwnershipScope(query, user, 'owner_id');
+
+    const { data, count, error } = await query
       .range(skip, skip + limit - 1)
       .order('created_at', { ascending: false });
     if (error) throw error;
@@ -104,22 +116,31 @@ export class CustomRepository {
     return record;
   }
 
-  async updateRecord(id: string, data: Record<string, unknown>) {
-    const { data: record, error } = await supabase
-      .from('custom_records')
-      .update({ data })
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
+  async updateRecord(
+    id: string,
+    data: Record<string, unknown>,
+    user: AuthUser,
+  ) {
+    let query = supabase.from('custom_records').update({ data }).eq('id', id);
+
+    query = applyOwnershipScope(query, user, 'owner_id');
+
+    const { data: record, error } = await query.select().single();
+    if (error) {
+      if (error.code === 'PGRST116') {
+        throw new NotFoundError('Record not found or access denied');
+      }
+      throw error;
+    }
     return record;
   }
 
-  async deleteRecord(id: string) {
-    const { error } = await supabase
-      .from('custom_records')
-      .delete()
-      .eq('id', id);
+  async deleteRecord(id: string, user: AuthUser) {
+    let query = supabase.from('custom_records').delete().eq('id', id);
+
+    query = applyOwnershipScope(query, user, 'owner_id');
+
+    const { error } = await query;
     if (error) throw error;
   }
 }

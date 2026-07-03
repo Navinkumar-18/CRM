@@ -66,8 +66,9 @@ export const Customers = () => {
         await createMutation.mutateAsync(form);
       }
       setModalOpen(false);
-    } catch (err: any) {
-      setFormError(err?.response?.data?.message || err?.message || 'Failed to save customer');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      setFormError(error?.response?.data?.message || error?.message || 'Failed to save customer');
     } finally {
       setSaving(false);
     }
@@ -78,8 +79,9 @@ export const Customers = () => {
     try {
       await deleteMutation.mutateAsync(deleteTarget.id);
       setDeleteTarget(null);
-    } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || 'Failed to delete customer');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
+      alert(error?.response?.data?.message || error?.message || 'Failed to delete customer');
     }
   };
 
@@ -266,7 +268,7 @@ export const Customers = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Sector</label>
-              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as any })} className="input-field">
+              <select value={form.sector} onChange={e => setForm({ ...form, sector: e.target.value as Customer['sector'] })} className="input-field">
                 {SECTORS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
@@ -278,7 +280,7 @@ export const Customers = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#191b23] mb-1">Status</label>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as any })} className="input-field">
+              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value as Customer['status'] })} className="input-field">
                 {CUSTOMER_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>

@@ -43,6 +43,9 @@ export const logActivity = async (params: LogActivityParams) => {
   });
 
   if (staffError) {
-    logger.warn({ err: staffError, userId: params.userId }, 'Failed to log staff activity');
+    logger.warn(
+      { err: staffError, userId: params.userId },
+      'Failed to log staff activity',
+    );
   }
 };

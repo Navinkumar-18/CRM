@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/axios';
-import type { User, Lead, Customer, Task, Activity } from '../../types';
+import type { User, Lead, Customer, Task, Activity, TaskStatus, LeadStatus } from '../../types';
 import { AssignWorkModal } from './components/AssignWorkModal';
 import { StaffFormModal } from './components/StaffFormModal';
 import { 
@@ -37,7 +37,7 @@ export const StaffDetails = () => {
     queryKey: ['user', id],
     queryFn: async () => {
       const res = await api.get(`/users/${id}`);
-      return (res as any).data;
+      return (res as unknown as { data: User }).data;
     },
     enabled: !!id,
   });
@@ -49,7 +49,7 @@ export const StaffDetails = () => {
     queryKey: ['staff-leads', id],
     queryFn: async () => {
       const res = await api.get('/leads?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: Lead[] } }).data;
     },
     enabled: !!id,
   });
@@ -59,7 +59,7 @@ export const StaffDetails = () => {
     queryKey: ['staff-customers', id],
     queryFn: async () => {
       const res = await api.get('/customers?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: Customer[] } }).data;
     },
     enabled: !!id,
   });
@@ -69,7 +69,7 @@ export const StaffDetails = () => {
     queryKey: ['staff-tasks', id],
     queryFn: async () => {
       const res = await api.get('/tasks?limit=100');
-      return (res as any).data;
+      return (res as unknown as { data: { data: Task[] } }).data;
     },
     enabled: !!id,
   });
@@ -79,44 +79,44 @@ export const StaffDetails = () => {
     queryKey: ['staff-activities', id],
     queryFn: async () => {
       const res = await api.get(`/users/${id}/activities`);
-      return (res as any).data;
+      return (res as unknown as { data: Activity[] }).data;
     },
     enabled: !!id,
   });
 
   // Filter data to only show items assigned to this staff member
   const allLeads: Lead[] = (leadsData?.data || []) as Lead[];
-  const leads = allLeads.filter((l: any) => l.assignedTo === id || l.assignedTo?.id === id);
+  const leads = allLeads.filter((l: Lead) => (l.assignedTo as unknown as string) === id || l.assignedTo?.id === id);
 
   const allCustomers: Customer[] = (custData?.data || []) as Customer[];
-  const customers = allCustomers.filter((c: any) => c.assignedTo === id || c.assignedTo?.id === id);
+  const customers = allCustomers.filter((c: Customer) => (c.assignedTo as unknown as string) === id || c.assignedTo?.id === id);
 
   const allTasks: Task[] = (taskData?.data || []) as Task[];
-  const tasks = allTasks.filter((t: any) => t.assignedTo === id || t.assignedTo?.id === id);
+  const tasks = allTasks.filter((t: Task) => (t.assignedTo as unknown as string) === id || t.assignedTo?.id === id);
 
   const activities: Activity[] = (actData || []) as Activity[];
 
   // Mutations
   const leadUpdateMutation = useMutation({
-    mutationFn: async ({ leadId, data }: { leadId: string; data: any }) => {
+    mutationFn: async ({ leadId, data }: { leadId: string; data: Partial<Lead> }) => {
       const res = await api.put(`/leads/${leadId}`, data);
-      return (res as any).data;
+      return (res as unknown as { data: Lead }).data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff-leads', id] }),
   });
 
   const taskUpdateMutation = useMutation({
-    mutationFn: async ({ taskId, data }: { taskId: string; data: any }) => {
+    mutationFn: async ({ taskId, data }: { taskId: string; data: Partial<Task> }) => {
       const res = await api.put(`/tasks/${taskId}`, data);
-      return (res as any).data;
+      return (res as unknown as { data: Task }).data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['staff-tasks', id] }),
   });
 
   const userUpdateMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Partial<User>) => {
       const res = await api.put(`/users/${id}`, data);
-      return (res as any).data;
+      return (res as unknown as { data: User }).data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['user', id] }),
   });
@@ -145,7 +145,7 @@ export const StaffDetails = () => {
 
   const handleUpdateStaff = async (data: Partial<User>) => {
     try {
-      const updatePayload: Record<string, any> = {};
+      const updatePayload: Partial<User> = {};
       if (data.name) updatePayload.name = data.name;
       if (data.role) updatePayload.role = data.role;
       if (data.phone !== undefined) updatePayload.phone = data.phone;
@@ -160,7 +160,7 @@ export const StaffDetails = () => {
 
   const handleTaskStatusChange = async (taskId: string, newStatus: string) => {
     try {
-      await taskUpdateMutation.mutateAsync({ taskId, data: { status: newStatus } });
+      await taskUpdateMutation.mutateAsync({ taskId, data: { status: newStatus as TaskStatus } });
     } catch {
       // silent
     }
@@ -168,7 +168,7 @@ export const StaffDetails = () => {
 
   const handleLeadStatusChange = async (leadId: string, newStatus: string) => {
     try {
-      await leadUpdateMutation.mutateAsync({ leadId, data: { status: newStatus } });
+      await leadUpdateMutation.mutateAsync({ leadId, data: { status: newStatus as LeadStatus } });
     } catch {
       // silent
     }

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { toCamelCase } from '../utils/transform';
-import { validateOptionalEmail } from '../utils/validation';
 import {
   getCustomers,
   createCustomer,

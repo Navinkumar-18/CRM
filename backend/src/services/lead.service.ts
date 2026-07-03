@@ -2,6 +2,7 @@ import { leadRepository } from '../repositories/lead.repository';
 import { AuthUser } from '../types/database';
 import { logActivity } from './activity.service';
 import { CreateLeadInput, UpdateLeadInput } from '../schemas/lead.schema';
+import { resolveAssignedTo } from '../utils/access';
 
 export const getLeads = async (
   user: AuthUser,
@@ -30,7 +31,7 @@ export const createLead = async (user: AuthUser, body: CreateLeadInput) => {
     status: body.status || 'new',
     sector: body.sector || 'general',
     notes: body.notes || null,
-    assigned_to: body.assignedTo || user.id,
+    assigned_to: resolveAssignedTo(body.assignedTo, user),
     created_by: user.id,
   })) as Record<string, string>;
 
@@ -67,8 +68,8 @@ export const updateLead = async (
   }
 
   // Only admin/manager can reassign leads to other users
-  if (body.assignedTo) {
-    updateData['assigned_to'] = body.assignedTo;
+  if (body.assignedTo !== undefined) {
+    updateData['assigned_to'] = resolveAssignedTo(body.assignedTo, user);
   }
 
   const data = (await leadRepository.update(id, updateData, user)) as Record<
