@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enterprise CRM - Staff Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#00174b",
+                      "background": "#f8f9ff",
+                      "secondary-container": "#645efb",
+                      "on-primary-container": "#eeefff",
+                      "on-secondary-container": "#fffbff",
+                      "primary-fixed": "#dbe1ff",
+                      "on-tertiary-fixed-variant": "#7d2d00",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed-dim": "#c3c0ff",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#e2dfff",
+                      "on-surface": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#bc4800",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "on-tertiary-fixed": "#360f00",
+                      "on-tertiary-container": "#ffede6",
+                      "on-background": "#0b1c30",
+                      "error-container": "#ffdad6",
+                      "secondary": "#4b41e1",
+                      "tertiary": "#943700",
+                      "surface-container-low": "#eff4ff",
+                      "primary-container": "#2563eb",
+                      "primary": "#004ac6",
+                      "surface-container": "#e5eeff",
+                      "surface-tint": "#0053db",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "outline-variant": "#c3c6d7",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-variant": "#d3e4fe",
+                      "inverse-surface": "#213145",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline": "#737686",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed": "#0f0069",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#434655",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-secondary-fixed-variant": "#3323cc",
+                      "tertiary-fixed": "#ffdbcd",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#dce9ff",
+                      "surface-dim": "#cbdbf5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "xl": "32px",
+                      "2xl": "48px",
+                      "3xl": "64px",
+                      "lg": "24px",
+                      "base": "8px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "display-xl": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.03em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-xl": [
+                              "60px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "60px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .bento-hover {
+            transition: all 0.3s ease;
+        }
+        .bento-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-64 flex-shrink-0 sticky top-0 bg-white/80 dark:bg-inverse-surface/80 backdrop-blur-xl border-r border-outline-variant/30 shadow-sm py-6 px-4 z-50">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-md shadow-sm">
+                E
+            </div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Enterprise CRM</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Premium Workspace</p>
+</div>
+</div>
+<button class="w-full h-12 bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center justify-center gap-2 mb-8 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+            New Entry
+        </button>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+                Customers
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">alt_route</span>
+                Pipelines
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">handshake</span>
+                Deals
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">task_alt</span>
+                Tasks
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary bg-surface-container-high font-bold transition-colors duration-200 active:scale-[0.98] font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">badge</span>
+                Staff
+            </a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/30 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors duration-200 font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">help</span>
+                Support
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-h-screen relative w-full overflow-x-hidden">
+<!-- TopNavBar (Mobile & Desktop) -->
+<header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 bg-white/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm z-40">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 -ml-2 text-on-surface-variant rounded-full hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">CRM Architect</div>
+</div>
+<div class="flex-1 max-w-md mx-8 hidden md:block">
+<div class="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-lg">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-surface-container-low border-none rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:ring-1 focus:ring-primary focus:bg-white transition-all" placeholder="Search staff, departments..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border border-white"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="p-1 ml-2 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant/30" data-alt="A professional headshot of a corporate executive in a bright, modern office setting. The lighting is soft and even, suggesting a high-end corporate environment. The person is wearing a tailored navy suit and smiling confidently." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc3JGAa12_U-4zgjmOcTj4yP_EV1cZRPeqd1Cvi0wIaitAPcZU6yTKbv1tGLJ3o62j6Ud_CFd85QI4ckBsDElne5lR7t8twZ7Wntd2p2zO2TOae045DYrfk_iXm-oVjAO_JE7jldXZcuG1F0ptDrMxFqDdOmUABZBEYwnofx2JInDPHKRrUsaeSveITn_0VE8TMPCah6JGdvbWWCIjzDNbaVuEZa7oUaJStK5leSotu7Wu8mFJ8PPPZbYiu2ON7IlpYLpUYNSHeBE"/>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-margin-mobile md:p-margin-desktop flex-1 max-w-[1440px] mx-auto w-full flex flex-col gap-xl">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-1">Staff Directory</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your organization's team members and performance.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-10 px-4 bg-white border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface flex items-center gap-2 hover:bg-surface-container-lowest transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+                        Filter
+                    </button>
+<button class="h-10 px-4 bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">person_add</span>
+                        Add Staff
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Main Content: Staff Grid (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-md">
+<!-- Staff Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- Card 1 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md bento-hover">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3 items-center">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant/30" data-alt="A bright, professional corporate headshot of a young female software engineer in a modern, well-lit tech office. She is wearing casual professional attire, a light blue blouse, with a slight smile, against a slightly blurred background of monitors and glass walls." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Df_mJ0y6S2FLmEn4ya2i7FPl4yfARJUpnqSGHcT-BYQpOcwfYz6JvUicKR2yGtFwmJR_-z5Z2IHNGFpV0scHyFvqm-Y5d78UTUjv4v7yThBYX_ccINh_pMeB5oTDbXXjW-xBkFqsTiZicGKz2Ki444MI0dN6bUIW0DNiEA8GRUrHLMBvovwTurQzCPI1Lsv0lAYWjR8SKQin5wmbF6c8oJyFDpmC5Kl31XtND5Pv1npwc3E_5wF2zaq6p-TiJwxNdVd_ECtPAkg"/>
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-snug">Sarah Jenkins</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Senior Developer</p>
+</div>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-2 mb-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-[11px] font-semibold tracking-wider uppercase rounded-full">Engineering</span>
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wider uppercase rounded-full">Full-Time</span>
+</div>
+<div class="border-t border-outline-variant/30 pt-3 flex justify-between items-end">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Performance</p>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-[20px] text-primary">94%</span>
+<span class="material-symbols-outlined text-[16px] text-[#16a34a]">trending_up</span>
+</div>
+</div>
+<!-- Mini Chart Placeholder -->
+<div class="w-16 h-8 flex items-end gap-[2px]">
+<div class="w-full bg-surface-variant rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[80%]"></div>
+<div class="w-full bg-primary rounded-t-sm h-[94%]"></div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md bento-hover">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3 items-center">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant/30" data-alt="A polished corporate headshot of a middle-aged male sales director. He is wearing a sharp grey suit with a white shirt, no tie. The background is a sophisticated, slightly out-of-focus boardroom with warm, ambient lighting. He projects confidence and experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO_lxDyoKbuRreueCFDVi8rnHe-w9E2aRF2W2Q0AaiHp8MXs7uvPeG7cNd1WAKLxU_ic-NxKdAIUcFklW3ouyOwqghqRQjbqgN7HJ4teld-RNEuW2aDIUTXPC1sXIZXzOSvqL5GoKBvW7jhd_PXTLjoEMGA-HdrCRkksc3npxkxYk9jt5GgEsJqVOKI8PUsxfQm6bPIx59mhXFMuyU0i6aUSq437MuMN70Gli3JWmPz-JejIaFfg4D3VdwOnPObgKGMr1R3AWVzm8"/>
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-snug">David Chen</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sales Director</p>
+</div>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-2 mb-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-[11px] font-semibold tracking-wider uppercase rounded-full">Sales</span>
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wider uppercase rounded-full">Full-Time</span>
+</div>
+<div class="border-t border-outline-variant/30 pt-3 flex justify-between items-end">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Performance</p>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-[20px] text-primary">88%</span>
+<span class="material-symbols-outlined text-[16px] text-outline">trending_flat</span>
+</div>
+</div>
+<div class="w-16 h-8 flex items-end gap-[2px]">
+<div class="w-full bg-surface-variant rounded-t-sm h-[70%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[80%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[88%]"></div>
+<div class="w-full bg-primary/70 rounded-t-sm h-[88%]"></div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md bento-hover">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3 items-center">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant/30" data-alt="A modern, high-key portrait of a creative designer in a bright studio environment. She is young, wearing stylish, minimalist dark clothing. The lighting is soft and diffuse, highlighting a clean, contemporary aesthetic appropriate for a design agency or tech company." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD39CHq9adDLxr9KKA9zoRv_V6wJpWB3CNTkd5WYDSxxsXF4OXfcaHZQGzDE0pYptWNPh08qfuYn_GglovSAG_TXWAqFHOQQIG7FggWJxmdwX7zgMH1QKLoySg1lQb3S4-yoDPODt7W6uPUcTAGFOmGstQrax9KAq2pCdZYNCK_FeCIlQxXO3ij5eOZHuQVXLKxelgufu0GfEOD5ejtqiv-NUYO3G8rslfa1YhKBnLY9D-BEbPnfBnz2nRxyjHHAjmaKyFRGPtCReM"/>
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-snug">Elena Rodriguez</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">UX Designer</p>
+</div>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-2 mb-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-[11px] font-semibold tracking-wider uppercase rounded-full">Design</span>
+<span class="px-2 py-1 bg-secondary-fixed-dim text-on-secondary-fixed text-[11px] font-semibold tracking-wider uppercase rounded-full">Contract</span>
+</div>
+<div class="border-t border-outline-variant/30 pt-3 flex justify-between items-end">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Performance</p>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-[20px] text-primary">96%</span>
+<span class="material-symbols-outlined text-[16px] text-[#16a34a]">trending_up</span>
+</div>
+</div>
+<div class="w-16 h-8 flex items-end gap-[2px]">
+<div class="w-full bg-surface-variant rounded-t-sm h-[60%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[75%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[90%]"></div>
+<div class="w-full bg-primary rounded-t-sm h-[96%]"></div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md bento-hover">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-3 items-center">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant/30" data-alt="A professional headshot of a male HR manager in a well-lit office setting. He is wearing a light blue dress shirt and a subtle patterned tie. The background is a clean, white modern office wall with soft natural light streaming in, conveying approachability and professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUKaCOTFJoMg_KumL9QW7VsD5rq1OtnAnZr6hhIbfqio_cSbq7lT9U4dQqvx-7Il47ru0pdC59ii1EtmaF73rM6sb0FVZ_bCzWaXWNdShzmKqAQKwPtPdeVML4lb1OopWm3BnesEXWFZH0j6EYSURpABzA_wb_9h7WxQwGYDTXJv2zwebIN-hqZzh40mxGugB4XqIVYGsTmJvx04KUdLUKehB-UJH1swvWJ_ibN6SBROdwHHBF5KMsILKzFz70Ilnp5op8pWj3Pbo"/>
+<div>
+<h3 class="font-headline-md text-[18px] text-on-surface leading-snug">Marcus Johnson</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">HR Manager</p>
+</div>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-2 mb-4">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface text-[11px] font-semibold tracking-wider uppercase rounded-full">Human Res.</span>
+<span class="px-2 py-1 bg-primary-fixed text-on-primary-fixed text-[11px] font-semibold tracking-wider uppercase rounded-full">Full-Time</span>
+</div>
+<div class="border-t border-outline-variant/30 pt-3 flex justify-between items-end">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Performance</p>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-[20px] text-primary">82%</span>
+<span class="material-symbols-outlined text-[16px] text-error">trending_down</span>
+</div>
+</div>
+<div class="w-16 h-8 flex items-end gap-[2px]">
+<div class="w-full bg-surface-variant rounded-t-sm h-[90%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[95%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[88%]"></div>
+<div class="w-full bg-surface-variant rounded-t-sm h-[85%]"></div>
+<div class="w-full bg-error/70 rounded-t-sm h-[82%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-center mt-4">
+<button class="h-10 px-6 bg-white border border-outline-variant rounded-lg font-label-md text-label-md text-primary hover:bg-surface-container-low transition-colors shadow-sm">
+                            View All Staff
+                        </button>
+</div>
+</div>
+<!-- Right Sidebar Widgets (4 cols) -->
+<div class="lg:col-span-4 flex flex-col gap-md">
+<!-- Attendance Widget -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-[18px] text-on-surface">Attendance Today</h3>
+<button class="text-primary text-sm hover:underline font-label-md">Details</button>
+</div>
+<div class="flex items-center gap-4 mb-6">
+<div class="relative w-20 h-20 flex-shrink-0">
+<!-- Donut Chart Placeholder using conic-gradient -->
+<div class="absolute inset-0 rounded-full" style="background: conic-gradient(#2563eb 0% 85%, #dce9ff 85% 100%);"></div>
+<div class="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+<span class="font-headline-md text-lg text-primary">85%</span>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-1">
+<div class="flex justify-between items-center">
+<span class="flex items-center gap-2 font-body-sm text-on-surface-variant"><div class="w-2 h-2 rounded-full bg-primary"></div> Present</span>
+<span class="font-label-md text-on-surface">142</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="flex items-center gap-2 font-body-sm text-on-surface-variant"><div class="w-2 h-2 rounded-full bg-surface-container-high"></div> Absent</span>
+<span class="font-label-md text-on-surface">18</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="flex items-center gap-2 font-body-sm text-on-surface-variant"><div class="w-2 h-2 rounded-full bg-tertiary-container"></div> On Leave</span>
+<span class="font-label-md text-on-surface">8</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Top Performers Widget -->
+<div class="bg-white rounded-xl border border-outline-variant/30 p-md shadow-sm flex-1">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-[18px] text-on-surface">Top Performers</h3>
+<span class="material-symbols-outlined text-outline">military_tech</span>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Leaderboard Item 1 -->
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-primary flex items-center justify-center font-bold font-label-md">1</div>
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular avatar image showing the face of a confident young Asian male professional. He has neat dark hair and is wearing a crisp white button-down shirt. The background is a simple, blurred office setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMYOutZ1kfKn-N75ceVD7SaQss4QxXOlJ6PkdYFnelG-9RFCmd4m3rJA_-yrkbJKfkfeVLHJgzFe4FzZKz8yy369hUkPnbGU_oKe9-IOj_R8kVllFsdnaPqQ0_wewibWsEsDXH5wqRU8kneXIEsu1qAGcf-qI8hBtfLvHc3xoHQU-k4sKcJaL_Mf56Cdr-UdJuQxWQlmRwo-EasgSLtEJDs14RnoS9TtrZxAJm7E5ijX2UQCXP1xLmjRwXW9IEF728Ini88CS5Si8"/>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors">Elena Rodriguez</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant">Design</p>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[16px] text-primary">96%</span>
+</div>
+</div>
+<!-- Leaderboard Item 2 -->
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="w-8 h-8 rounded-full bg-surface text-on-surface-variant flex items-center justify-center font-bold font-label-md">2</div>
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular avatar image showing a middle-aged Caucasian woman with short blonde hair and glasses. She is wearing a dark blazer over a light blouse. The background is a clean, neutral grey wall." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1qQeSoSaj03BrWhUftZyrDPKWsN5ueAaOZB2Ltf4718nnBloPNt8_xZI8VvNts7IsMB8aHwBWvkEDpMwYTc8Wa3wi1mhEhBP0Nxq9JiqnEmh8-hwPYW2hIjHT7EIjcsjjYCBWmZKf_wrK8nnWpRBDJCYZ7d_b2Bd28UcVxBjH6Svad1_wfKfxnxpN4dOUZcVqyCQFKGL4kkzWqUODTvtIQs4U2A9QUrmXpRT3SgH8ldbFu8bj2EZzvyGGhhenSaPvPo6MLNNcqxU"/>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors">Sarah Jenkins</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant">Engineering</p>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[16px] text-primary">94%</span>
+</div>
+</div>
+<!-- Leaderboard Item 3 -->
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="w-8 h-8 rounded-full bg-surface text-on-surface-variant flex items-center justify-center font-bold font-label-md">3</div>
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A small, circular avatar image of a young Black male with a neat beard and a warm smile. He is wearing a casual polo shirt. The lighting is bright and cheerful, suggesting a positive and dynamic work environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkPBX4U-tezF8OkOHd24BnROjv8X1iqRX54CZvwLmZaaxCZ4qX58HW6o8-TtN2exMeLrFagCeHTWf0Vdwf9V4wv5VDu4zUhrnAgLosHvKPX5baRx25OjSHGZHGryzTgZDfBPzS03ASyNiPppgi1u6_XqmhMrE7fJvx9X64zRHQJlp-v3adgzMsLp7x_EV9ePp2czTcktOvcv4CvbrO_YJ_9ji8MohngQz2WEoUFwZccW27qxeONLfvQ-9QgVYKG5Q_J_OzqOlGv9A"/>
+<div class="flex-1">
+<h4 class="font-label-md text-on-surface group-hover:text-primary transition-colors">Michael Chang</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant">Marketing</p>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-[16px] text-primary">91%</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 h-10 bg-surface-container border border-outline-variant/30 rounded-lg font-label-md text-primary hover:bg-surface-variant transition-colors">
+                            View Full Report
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
