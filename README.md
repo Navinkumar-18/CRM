@@ -182,6 +182,14 @@ cd backend
 docker compose up --build
 ```
 
+## Deploy the backend on Render
+
+Use the included [`render.yaml`](/home/nerupu-navin/crm/render.yaml:1) as a
+Blueprint. It is configured for this monorepo, includes a liveness check, and
+allows the deployed frontend at `https://crm-hg2e.onrender.com` to call the
+API. See the backend [deployment instructions](/home/nerupu-navin/crm/backend/README.md:91)
+for the short setup checklist and the required Supabase credentials.
+
 ## Additional Notes
 
 - The frontend contains separate admin and staff experiences.
