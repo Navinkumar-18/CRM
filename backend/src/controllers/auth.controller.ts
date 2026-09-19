@@ -14,18 +14,20 @@ import {
 } from '../services/auth.service';
 import { supabase } from '../config/supabase';
 
+const isProduction = env.nodeEnv === 'production';
+
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.nodeEnv === 'production',
-  sameSite: 'strict' as const,
+  secure: isProduction,
+  sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   path: '/api/auth', // Scope the cookie to auth endpoints only
 };
 
 const CLEAR_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: env.nodeEnv === 'production',
-  sameSite: 'strict' as const,
+  secure: isProduction,
+  sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 0,
   path: '/api/auth',
 };

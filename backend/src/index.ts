@@ -90,14 +90,15 @@ app.use(
       // Allow requests with no origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
-      if (env.allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      if (env.allowedOrigins.includes(normalizedOrigin)) {
         callback(null, true);
       } else {
         logger.warn(
           { origin },
           'CORS: blocked request from unauthorized origin',
         );
-        callback(new Error(`CORS: origin ${origin} not allowed`));
+        callback(null, false);
       }
     },
     credentials: true,

@@ -8,8 +8,6 @@ const requiredEnvVars = [
   'JWT_ACCESS_SECRET',
   'JWT_REFRESH_SECRET',
   'FRONTEND_URL',
-  'NODE_ENV',
-  'PORT',
 ] as const;
 
 for (const key of requiredEnvVars) {
@@ -45,13 +43,15 @@ if (bcryptRounds < 10 || bcryptRounds > 14) {
   throw new Error('BCRYPT_SALT_ROUNDS must be between 10 and 14');
 }
 
-// Parse allowed origins: support comma-separated list
+// Parse allowed origins: normalize trailing slashes and merge FRONTEND_URL & ALLOWED_ORIGINS
 const parseAllowedOrigins = (): string[] => {
-  const raw = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || '';
-  return raw
+  const sources = [process.env.FRONTEND_URL, process.env.ALLOWED_ORIGINS]
+    .filter(Boolean)
+    .join(',')
     .split(',')
-    .map((o) => o.trim())
+    .map((o) => o.trim().replace(/\/+$/, ''))
     .filter(Boolean);
+  return Array.from(new Set(sources));
 };
 
 export const env = {
@@ -63,10 +63,10 @@ export const env = {
   jwtRefreshExpiry: process.env.JWT_REFRESH_EXPIRY || '7d',
   jwtIssuer: process.env.JWT_ISSUER || 'zunacrm-api',
   jwtAudience: process.env.JWT_AUDIENCE || 'zunacrm-app',
-  frontendUrl: process.env.FRONTEND_URL as string,
+  frontendUrl: (process.env.FRONTEND_URL as string).trim().replace(/\/+$/, ''),
   allowedOrigins: parseAllowedOrigins(),
-  nodeEnv: process.env.NODE_ENV as string,
-  port: parseInt(process.env.PORT as string, 10),
+  nodeEnv: process.env.NODE_ENV || 'development',
+  port: parseInt(process.env.PORT || '3001', 10),
   bcryptRounds,
   smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
   smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
