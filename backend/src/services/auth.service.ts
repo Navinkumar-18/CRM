@@ -11,7 +11,6 @@ import {
   ForbiddenError,
 } from '../utils/AppError';
 import { logger } from '../config/logger';
-import type { StringValue } from 'ms';
 
 /** JWT payload shape — stored in both access and refresh tokens */
 interface JwtPayload {
@@ -29,7 +28,7 @@ const generateAccessToken = (userId: string): string => {
     aud: env.jwtAudience,
   };
   return jwt.sign(payload, env.jwtAccessSecret, {
-    expiresIn: env.jwtAccessExpiry as StringValue,
+    expiresIn: env.jwtAccessExpiry as any,
     algorithm: 'HS256',
   });
 };
@@ -42,7 +41,7 @@ const generateRefreshToken = (userId: string): string => {
     aud: env.jwtAudience,
   };
   return jwt.sign(payload, env.jwtRefreshSecret, {
-    expiresIn: env.jwtRefreshExpiry as StringValue,
+    expiresIn: env.jwtRefreshExpiry as any,
     algorithm: 'HS256',
   });
 };

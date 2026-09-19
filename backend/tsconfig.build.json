@@ -8,5 +8,5 @@
     "noEmit": false
   },
   "include": ["src/**/*"],
-  "exclude": ["test/**/*", "dist/**/*"]
+  "exclude": ["test/**/*", "dist/**/*", "src/seed.ts"]
 }
