@@ -32,6 +32,13 @@ import customRoutes from './routes/custom.routes';
 
 const app = express();
 
+// Render and other managed hosts terminate TLS before forwarding requests to
+// this process. Trusting the first proxy preserves the real client IP for
+// rate limiting and request logging without trusting arbitrary proxy headers.
+if (env.nodeEnv === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // ─── Request ID (must be first for tracing) ─────────────────────────────────
 app.use(requestId);
 

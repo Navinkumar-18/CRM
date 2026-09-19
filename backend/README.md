@@ -89,3 +89,23 @@ src/
 ```bash
 docker compose up --build
 ```
+
+## Deploy to Render
+
+The repository includes a Render Blueprint at `../render.yaml`. It creates a
+Node web service with `backend/` as its root directory, builds with `npm ci &&
+npm run build`, starts with `npm start`, and checks `/health/live`.
+
+1. In Render, select **New +** → **Blueprint**, then choose this repository.
+2. Enter the requested `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` values.
+   Add `SMTP_USER` and `SMTP_PASS` in the service environment settings if
+   email verification and password reset emails should be sent.
+3. Render generates independent JWT secrets and sets the production frontend
+   origin to `https://crm-hg2e.onrender.com`.
+4. After deployment, copy the service URL and set the frontend's
+   `VITE_API_URL` to `https://<your-backend>.onrender.com/api`, then redeploy
+   the frontend.
+
+Do not set `PORT` on Render; the platform supplies it. If you use a custom
+frontend domain later, add it to both `FRONTEND_URL` and the comma-separated
+`ALLOWED_ORIGINS` value before deploying it.
